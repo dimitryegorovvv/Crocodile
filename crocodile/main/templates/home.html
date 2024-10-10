@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="main">
+        <div class="current_users">
+            <span>Игроки:</span>
+        </div>
+        <canvas id="drawingCanvas" width="900" height="450"></canvas>
+        <button class="clear_button">Очистить</button>
+        <div class="chat_watch"></div>
+        <div class="chat_write_and_btn_send">
+            <input class="chat_write" placeholder="Угадайте слово" type="text">
+            <button class="btn_send_mes">Отправить</button>
+        </div>
+        <!-- <div class="words_for_presenter"> -->
+            <!-- <div class="choose_word">Выберите слово:</div>
+            <div class="selectable_word_wr">
+                <button class="selectable_word">Шляпа</button>
+                <button class="selectable_word">Стол</button>
+                <button class="selectable_word">Лампа</button>
+            </div> -->
+        <!-- </div> -->
+    </div>
+{% endblock %}

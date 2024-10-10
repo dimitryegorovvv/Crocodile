@@ -1,0 +1,190 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a{
+    text-decoration: none;
+    color: inherit;
+}
+
+body{
+    overflow-x: hidden;
+    font-family: "Montserrat", 'Trebuchet MS';
+    background-color: #0f0f0f;
+    color: white;
+}
+
+button{
+    outline: none;
+    border: 0;
+    border-radius: 10px;
+    background-color: #0f0f0f;
+    color: #f1f1f1;
+    font-size: 15px;
+    padding: 10px;
+    cursor: pointer;
+    /* border-top-right-radius: 12px; */
+    /* border-bottom-right-radius: 12px; */
+}
+
+input{
+    background-color: #f1f1f1;
+    color: #0f0f0f;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    background-color: #272727;
+    color: #f1f1f1;
+    padding: 10px 15px;
+}
+
+input:focus{
+    outline: none;
+}
+
+::-webkit-scrollbar{
+    background-color: #0f0f0f;
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb{
+    background-color: #272727;
+}
+
+.header{
+    width: 100vw;
+    display: flex;
+    padding: 0 50px;
+    align-items: center;
+    height: 80px;
+    justify-content: space-between;
+}
+
+.header > *{
+    font-size: 15px;
+}
+
+.main{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+canvas{
+    margin-top: 50px;
+    background-color: #c54242;
+    touch-action: none;
+    border-radius: 10px;
+}
+
+
+.clear_button{
+    margin-top: 15px;
+}
+
+.chat_write{
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-top: 7px solid #0f0f0f;
+    font-size: 16px;
+    font-weight: 500;
+    background-color: #272727;
+    border-top: 7px solid #0f0f0f;
+    color: #f1f1f1;
+    padding: 10px 15px;
+    margin-bottom: 50px;
+    width: 300px;
+    height: 50px;
+}
+
+.chat_write_and_btn_send{
+    width: 400px;
+    height: 50px;
+    display: flex;
+    margin-bottom: 50px;
+}
+
+.btn_send_mes{
+    width: 100px;
+    height: 50px;
+}
+
+.chat_watch > *{
+    max-height: 30px;
+}
+
+.chat_watch{
+    margin-top: 20px;
+    width: 400px;
+    height: 300px;
+    background-color: #272727;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 20px;
+    overflow-y: scroll;
+}
+
+.chat_user{
+    max-width: 100px;
+    overflow: hidden;
+    /* text-overflow: ellipsis; */
+    white-space: nowrap;
+    display: inline-block;
+    padding: 7px;
+}
+
+.chat_message{
+    width: 200px;
+    margin-left: 10px;
+    background-color: #0f0f0f;
+    padding: 7px;
+    border-radius: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.chat_msg_wr{
+    margin-bottom: 10px;
+}
+
+.ready_button{
+    background-color: red;
+}
+
+.words_for_presenter{
+    font-size: 15px;
+    position: absolute;       /* Элемент будет зафиксирован относительно окна браузера */
+    top: 50%;              /* Располагаем элемент на 50% от верха */
+    left: 50%;             /* Располагаем элемент на 50% от левого края */
+    transform: translate(-50%, -50%); /* Сдвигаем элемент на половину его ширины и высоты */
+    z-index: 9999;         /* Элемент будет отображаться поверх остальных элементов */
+    background-color: #0f0f0f; /* Темный фон с прозрачностью */
+    color: white;          /* Цвет текста */
+    padding: 20px;         /* Внутренние отступы для более удобного отображения */
+    border-radius: 10px;   /* Скругленные углы */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.selectable_word_wr{
+    display: flex;
+    gap: 10px;
+}
+
+.selectable_word{
+    background-color: #272727;
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.choose_word{
+    margin-bottom: 15px;
+}
