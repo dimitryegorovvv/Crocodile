@@ -1,5 +1,6 @@
 import json
 import random
+import pdb
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
@@ -65,87 +66,27 @@ class DrawingConsumer(AsyncWebsocketConsumer):
             }))
 
 
-# class ChatConsumer(AsyncWebsocketConsumer):
-#     async def connect(self):
-#         # Название группы чата
-#         self.group_name = 'chat_group'
-
-#         # Присоединяем пользователя к группе
-#         await self.channel_layer.group_add(
-#             self.group_name,
-#             self.channel_name
-#         )
-
-#         # Принимаем соединение WebSocket
-#         await self.accept()
-#         print("Current session username: ", self.scope['session'].get('username'))
-
-
-
-#     async def disconnect(self, close_code):
-#         # Отключаемся от группы
-#         await self.channel_layer.group_discard(
-#             self.group_name,
-#             self.channel_name
-#         )
-
-#     # Получаем сообщение от клиента
-#     async def receive(self, text_data):
-#         data = json.loads(text_data)
-#         type = data['type']
-#         message = data['message']
-#         if data['type'] == 'change_username':
-#             await self.change_username_in_session(data['message'])
-#             await self.send(text_data=json.dumps({
-#                 'message': f'Username changed to {data['message']}',
-#                 'username': data['message']
-#             }))
-
-#         await self.channel_layer.group_send(
-#                 self.group_name,
-#                 {
-#                     'type': 'chat_message',
-#                     'message': message,
-#                     'message_type': type,
-#                 }
-#             )
-#     @database_sync_to_async
-#     def change_username_in_session(self, username):
-#         self.scope['session']['username'] = username
-#         self.scope['session'].save()
-
-#     # Обрабатываем сообщение и отправляем его клиентам
-#     async def chat_message(self, event):
-#         type = event['message_type']
-#         message = event['message']
-#         await self.send(text_data=json.dumps({
-#             'message': message,
-#             'type': type,
-#             'username': self.scope['session'].get('username', 'user')
-#         }))
 current_users = {}
 words = ['шляпа', 'конфета', 'банка', 'лампа', 'стол', 'ножницы']
+word_for_guessing = None
+leader = None
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
-    leader = None
     async def connect(self):
-        # Название группы чата
         self.group_name = 'chat_group'
 
-        # Присоединяем пользователя к группе
         await self.channel_layer.group_add(
             self.group_name,
             self.channel_name
         )
-
-        # Принимаем соединение WebSocket
 
         def get_username():
             for i in range(1, 9999): 
                 if ('user' + str(i)) not in current_users:
                     self.scope['session']['username'] = ('user' + str(i))
                     self.scope['session'].save()
-                    print('никнейм устарновился в функции')
+                    print('никнейм установился в функции')
                     return ('user' + str(i))
         
         await self.accept()
@@ -153,9 +94,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print('текщий никнейм:', (self.scope['session'].get('username')))
         if (self.scope['session'].get('username')) == None:
             get_username()
+
         current_users[(self.scope['session'].get('username'))] = {
             'status': 'not_ready',
-            'channel_name': self.channel_name
+            'channel_name': self.channel_name,
+            'guess_word': 'no',
+            'points': 0
         }
         print(current_users)
         
@@ -173,8 +117,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
 
-        # print("Current session username: ", self.scope['session'].get('username'))
-
     async def disconnect(self, close_code):
         # Отключаемся от группы
         await self.channel_layer.group_discard(
@@ -189,18 +131,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         type = data['type']
         
-
         # Обработка изменения никнейма
         if type == 'change_username':
             message = data['message']
             old_username = self.scope['session'].get('username')
             print('old_username', old_username)
             await self.change_username_in_session(message)
-            # for i in range(len(current_users)):
-            # for i in current_users:
-            #     if current_users[i] == old_username:
-            #         current_users[i] = self.scope['session'].get('username', 'user')
-            #         break
             current_users[self.scope['session'].get('username')] = current_users.pop(old_username)
             print(current_users)
 
@@ -211,50 +147,69 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'current_users': current_users,
                 }
             )
-            # Отправляем подтверждение текущему пользователю
-            # await self.send(text_data=json.dumps({
-            #     'message': f'Username changed to {message}',
-            #     'username': message
-            # }))
         elif type == 'send_message':
             message = data['message']
             username = self.scope['session'].get('username')
+            global word_for_guessing
+            if message.lower() == word_for_guessing:
+                current_users[username]['guess_word'] = 'yes'
+                await self.channel_layer.send(current_users[username]['channel_name'], {
+                    'type': 'user_guessed_word',
+                })
+                print('слово угадано')
             await self.channel_layer.group_send(
                 self.group_name,
                 {
                     'type': 'chat_message',
                     'message': message,
                     'message_type': type,
-                    'username': username
+                    'username': username,
+                    'guess_word': current_users[(self.scope['session'].get('username'))]['guess_word']
                 }
             )
-
+            
         elif type == 'are_ready':
-            username = self.scope['session'].get('username')
-            current_users[(self.scope['session'].get('username'))]['status'] = data['are_ready']
-            print(current_users)
+            if data['skip_send_ready'] == 'no':
+                username = self.scope['session'].get('username')
+                current_users[(self.scope['session'].get('username'))]['status'] = data['are_ready']
+                print(current_users)
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        'type': 'are_ready',
+                        'are_ready': data['are_ready'],
+                        'username': username
+                    }
+                )
+            if all(readiness['status'] == 'ready' for readiness in current_users.values()) and len(current_users) != 1:
+                global leader
+                print(leader)
+                leader = None
+                if not leader:
+                    print('начало игры')
+                    leader = random.choice(list(current_users.keys()))
+                    await self.channel_layer.send(current_users[leader]['channel_name'], {
+                        'type': 'send_leader',
+                        'words': random.sample(words, 3),
+                    })
+                    await self.channel_layer.group_send(
+                        self.group_name,
+                        {
+                            'type': 'label_who_is_leader',
+                            'leader_nickname': leader  
+                        }
+                    )
+
+
+        elif type == 'presenter_choosed_word':
+            word_for_guessing = data['word']
             await self.channel_layer.group_send(
                 self.group_name,
                 {
-                    'type': 'are_ready',
-                    'are_ready': data['are_ready'],
-                    'username': username
+                    'type': 'guess_word',
+                    'word': data['word']
                 }
             )
-            # user_readiness_counter = 0
-            # number_of_users = len(current_users)
-            # for readiness in current_users.values():
-            #     if number_of_users == 1:
-            #         break
-            #     if readiness == 'ready':
-            #         user_readiness_counter += 1
-            #     if user_readiness_counter == number_of_users:
-            if all(readiness['status'] == 'ready' for readiness in current_users.values()) and len(current_users) != 1:
-                print('начало игры')
-                if not self.leader:
-                    self.leader = random.choice(list(current_users.keys()))
-                    await self.make_leader(self.leader)
-
 
     @database_sync_to_async
     def change_username_in_session(self, username):
@@ -262,16 +217,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.scope['session']['username'] = username
         self.scope['session'].save()
 
+    # type: send_message
     async def chat_message(self, event):
-        type = event['message_type']
-        message = event['message']
-        username = event['username']  # Получаем никнейм из события
-
-        # Отправляем сообщение клиентам
         await self.send(text_data=json.dumps({
-            'type': type,
-            'message': message,
-            'username': username  # Отправляем никнейм отправителя
+            'type': event['message_type'],
+            'message': event['message'],
+            'username': event['username'],
+            'guess_word': event['guess_word']
         }))
 
     async def update_current_users(self, event):
@@ -288,18 +240,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'are_ready': event['are_ready'],
         }))
 
-    async def make_leader(self, leader):
-        print(f'лидер - {leader}')
-        await self.channel_layer.send(current_users[leader]['channel_name'], {
-            'type': 'send_leader',
-            'words': random.sample(words, 3)  
-        })
-        
     async def send_leader(self, event):
-        print('lead_2')
         await self.send(text_data=json.dumps({
             'type': 'make_leader',
             'words': event['words'],
+        }))
+
+    async def label_who_is_leader(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'label_who_is_leader',
+            'leader_nickname': event['leader_nickname'],
+        }))
+
+    async def guess_word(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'guess_word',
+            'word': word_for_guessing
+        }))
+
+    async def user_guessed_word(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'user_guessed_word',
         }))
         
 

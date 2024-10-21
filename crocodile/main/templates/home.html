@@ -1,23 +1,43 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
     <div class="main">
         <div class="current_users">
             <span>Игроки:</span>
         </div>
-        <canvas id="drawingCanvas" width="900" height="450"></canvas>
-        <button class="clear_button">Очистить</button>
-        <div class="chat_watch"></div>
-        <div class="chat_write_and_btn_send">
-            <input class="chat_write" placeholder="Угадайте слово" type="text">
-            <button class="btn_send_mes">Отправить</button>
+        <div class="game_timer">Статус: ожидание готовности игроков</div>
+        <!-- <div class="timer_choose_word">10</div> -->
+        <!-- <div class="word_for_presenter">Ваше слово: XXXXX</div> -->
+        <!-- <button class="clear_button">Очистить</button> -->
+        <div class="canvas_and_chat_wr">
+            <canvas id="drawingCanvas" width="900" height="450"></canvas>
+            <div class="chat_wr">
+                <div class="chat_watch">
+                    <!-- <div class="chat_msg_wr leader_label_wr>
+                        <span class="who_is_leader">Ведущий: user1</span>
+                    </div>
+                    <div class="chat_msg_wr">
+                        <span class="chat_user" stle="color: green;">user1</span>
+                        <span class="chat_message">Cлово угадано!</span>
+                        <img class="img_check_mark" src="{% static 'images/check_mark.png' %}">
+                    </div> -->
+                </div>
+                <div class="chat_write_and_btn_send">
+                    <input class="chat_write" placeholder="Угадайте слово" type="text">
+                    <button class="btn_send_mes">Отправить</button>
+                </div>
+                <div class="label_leader_and_what_was_word">Ведущий:</div>
+                <!-- <button class="clear_button">Очистить</button> -->
+            </div>
         </div>
-        <!-- <div class="words_for_presenter"> -->
-            <!-- <div class="choose_word">Выберите слово:</div>
+        <!-- <div class="words_for_presenter">
+            <div class="choose_word">Выберите слово:</div>
             <div class="selectable_word_wr">
-                <button class="selectable_word">Шляпа</button>
-                <button class="selectable_word">Стол</button>
-                <button class="selectable_word">Лампа</button>
-            </div> -->
-        <!-- </div> -->
+                <button class="selectable_word">Слово 1</button>
+                <button class="selectable_word">Слово 2</button>
+                <button class="selectable_word">Слово 3</button>
+            </div>
+            <div class="timer_choose_word">10</div>
+        </div> -->
     </div>
 {% endblock %}
