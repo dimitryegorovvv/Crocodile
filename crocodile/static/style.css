@@ -78,20 +78,27 @@ input:focus{
 
 canvas{
     margin-top: 50px;
-    background-color: #c54242;
     touch-action: none;
+    /* background-color: #c54242; */
+    /* background-color: #b3beeb; */
+    background-color: #0f0f0f;
     border-radius: 10px;
     margin-right: 20px;
 }
 
 
 .clear_button{
+    /* margin-left: 10px; */
+}
+
+.leader_tool{
     margin-top: 10px;
     background-color: #272727;
     width: fit-content;
     padding: 10px 15px;
     border-radius: 10px;
     font-size: 15px;
+    margin-right: 10px;
 }
 
 .chat_write{
@@ -105,12 +112,12 @@ canvas{
     color: #f1f1f1;
     padding: 10px 15px;
     margin-bottom: 50px;
-    width: 300px;
+    width: 250px;
     height: 50px;
 }
 
 .chat_write_and_btn_send{
-    width: 400px;
+    width: 350px;
     height: 50px;
     display: flex;
     margin-bottom: 10px;
@@ -127,26 +134,36 @@ canvas{
 
 .chat_watch{
     margin-top: 50px;
-    width: 400px;
+    width: 350px;
     height: 300px;
     background-color: #272727;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px !important;
     padding: 20px;
     overflow-y: scroll;
+    /* font-size: 15px; */
 }
 
 .chat_user{
     max-width: 100px;
-    overflow: hidden;
+    /* overflow: hidden; */
     /* text-overflow: ellipsis; */
+    /* white-space: nowrap; */
+    /* display: inline-block; */
+    padding: 7px;
+    overflow: hidden;
     white-space: nowrap;
     display: inline-block;
-    padding: 7px;
+    overflow-x: auto;
+}
+
+.chat_user::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }
 
 .chat_message{
-    width: 200px;
+    width: 160px;
     margin-left: 10px;
     background-color: #0f0f0f;
     padding: 7px;
@@ -154,6 +171,12 @@ canvas{
     overflow: hidden;
     white-space: nowrap;
     display: inline-block;
+    overflow-x: auto;
+}
+
+.chat_message::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }
 
 .chat_msg_wr{
@@ -243,3 +266,44 @@ canvas{
     border-radius: 10px;
     font-size: 15px;
 }
+
+.username_is_incorrect{
+    position: absolute;
+    margin-top: 10px;
+    background-color: #272727;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
+
+.user_tools{
+    background-color: #272727;
+}
+
+.canvas_BC_choose{
+    position: absolute;
+    transform: translate(-25%);
+    margin-top: 25px;
+}
+
+.canvas_BC_choose_label{
+    margin-bottom: 10px;
+    background-color: #272727;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: auto;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.button_standart_color{
+    margin-top: 10px;
+    background-color: #272727;
+    padding: 10px 50px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    border: 1px solid #f1f1f1;
+}
+

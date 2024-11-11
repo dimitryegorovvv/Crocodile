@@ -1,12 +1,200 @@
-const url = '127.0.0.1:8001'
 
-document.addEventListener('DOMContentLoaded', function() {
+// document.addEventListener('DOMContentLoaded', function() {
+//     const canvas = document.getElementById('drawingCanvas');
+//     const ctx = canvas.getContext('2d');
+//     const socket = new WebSocket('ws://' + url + '/ws/draw/');
+//     let drawing = false;
+    
+//     // Функция для получения координат касания на мобильных устройствах
+//     function getTouchPos(event) {
+//         const rect = canvas.getBoundingClientRect();
+//         return {
+//             x: event.touches[0].clientX - rect.left,
+//             y: event.touches[0].clientY - rect.top
+//         };
+//     }
+
+//     // Начало рисования
+//     function startDrawing(event) {
+//         drawing = true;
+//         let x = event.offsetX || getTouchPos(event).x;
+//         let y = event.offsetY || getTouchPos(event).y;
+
+//         // Начинаем новый путь
+//         // ctx.beginPath();
+//         // ctx.moveTo(x, y);
+        
+//         // Отправляем начальные координаты на сервер
+//         socket.send(JSON.stringify({
+//             'x': x,
+//             'y': y,
+//             'type': 'start'  // Указываем тип сообщения
+//         }));
+//     }
+
+    
+
+//     // Рисование
+//     function draw(event) {
+//         if (drawing) {
+//             let x = event.offsetX || getTouchPos(event).x;
+//             let y = event.offsetY || getTouchPos(event).y;
+
+//             // Отправляем координаты на сервер
+//             socket.send(JSON.stringify({
+//                 'x': x,
+//                 'y': y,
+//                 'type': 'draw'  // Указываем тип сообщения
+//             }));
+//         }
+//     }
+
+//     // Остановка рисования
+//     function stopDrawing() {
+//         drawing = false;
+//     }
+
+//     // События для мыши
+//     canvas.addEventListener('mousedown', startDrawing);
+//     canvas.addEventListener('mousemove', draw);
+//     canvas.addEventListener('mouseup', stopDrawing);
+//     canvas.addEventListener('mouseleave', stopDrawing);
+
+//     // События для касаний на мобильных устройствах
+//     canvas.addEventListener('touchstart', startDrawing);
+//     canvas.addEventListener('touchmove', draw);
+//     canvas.addEventListener('touchend', stopDrawing);
+
+//     // Получаем данные от сервера
+//     socket.onmessage = function(event) {
+//         const data = JSON.parse(event.data);
+        
+//         if (data.type === 'start') {
+//             // Начинаем новый путь
+//             ctx.beginPath();
+//             ctx.moveTo(data.x, data.y);
+//         } else if (data.type === 'draw') {
+//             // Продолжаем рисовать
+//             ctx.lineTo(data.x, data.y);
+//             ctx.stroke();
+//         } else if (data.type === 'clear') {
+//             ctx.clearRect(0, 0, canvas.width, canvas.height);
+//         }
+//     };
+// });
+
+const url = 'wss://' + 'c7fe-178-120-2-116.ngrok-free.app';
+// const url = 'ws://' + '127.0.0.1:8001';
+
+document.addEventListener('DOMContentLoaded', function() {    
+    const socket = new WebSocket(url + '/ws/draw/');
+    const chatInput = document.getElementsByClassName('chat_write')[0];
+    const btnSend = document.getElementsByClassName('btn_send_mes')[0];
+    const chatWatch = document.getElementsByClassName('chat_watch')[0];
+    const btnConfUsername = document.getElementsByClassName('btn_conf_username')[0];
+    const inpUsername = document.getElementsByClassName('inp_username')[0];
+    const currentUsers = document.getElementsByClassName('current_users')[0];
+    const buttonReady = document.getElementsByClassName('ready_button')[0];
+    const mainDiv = document.getElementsByClassName('main')[0];
     const canvas = document.getElementById('drawingCanvas');
     const ctx = canvas.getContext('2d');
-    const socket = new WebSocket('ws://' + url + '/ws/draw/');
+    const chatWr = document.getElementsByClassName('chat_wr')[0];
+    const labelLeaderAndWhatWasWord = document.getElementsByClassName('label_leader_and_what_was_word')[0];
+    const gameTimerAndGameStatus = document.getElementsByClassName('game_timer')[0];
+    const userTools = document.getElementsByClassName('user_tools')[0];
+    var currentCanvasColor = 'not_set';
+    var standartCanvasColor = '#83207e';
+    var word;
+    let chooseWordTimer;
+    let gameTimer;
     let drawing = false;
+    canvas.style.pointerEvents = 'none';
+    if (userTools.getAttribute('data-color') == ''){
+        canvas.style.backgroundColor = standartCanvasColor;
+    } else {
+        canvas.style.backgroundColor = userTools.getAttribute('data-color');
+    }
+    ctx.strokeStyle = '#f1f1f1';
+
+
+    userTools.addEventListener('click', function (event) {
+        if (event.target === userTools){
+            if (!document.getElementsByClassName('canvas_BC_choose')[0]){
+                let canvasBCchoose = document.createElement('div');
+                canvasBCchoose.classList.add('canvas_BC_choose');
     
-    // Функция для получения координат касания на мобильных устройствах
+                let canvasBCchooseLabel = document.createElement('div');
+                canvasBCchooseLabel.classList.add('canvas_BC_choose_label');
+                canvasBCchooseLabel.textContent = 'Выбор цвета доски';
+    
+                let colorPicker = document.createElement('div');
+                colorPicker.id = 'colorpicker';
+
+                let colorPickerInput = document.createElement('input');
+                colorPickerInput.type = 'text';
+                colorPickerInput.id = 'color';
+                colorPickerInput.name = 'color';
+                colorPickerInput.value = '#123456';
+
+                let labelStandartColor = document.createElement('button');
+                labelStandartColor.classList.add('button_standart_color');
+                labelStandartColor.textContent = 'По умолчанию';
+    
+                canvasBCchoose.appendChild(canvasBCchooseLabel);
+                canvasBCchoose.appendChild(colorPickerInput);
+                canvasBCchoose.appendChild(colorPicker);
+                canvasBCchoose.appendChild(labelStandartColor);
+                userTools.appendChild(canvasBCchoose);
+                
+                let farbtastic = $.farbtastic('#colorpicker').linkTo(function(color) {
+                    canvas.style.backgroundColor = color;
+                    currentCanvasColor = color;
+                });
+                // farbtastic.setColor(colorPickerInput.value);
+                farbtastic.setColor(userTools.getAttribute('data-color'));
+            } else {
+                socket.send(JSON.stringify({
+                    'type': 'save_color_canvas',
+                    'color': currentCanvasColor
+                }));
+                userTools.setAttribute('data-color', currentCanvasColor)
+                let canvasBCchoose = document.getElementsByClassName('canvas_BC_choose')[0];
+                canvasBCchoose.remove();
+                // fetch('/save_color_canvas/', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify({ 'color': currentCanvasColor })
+                // }).then(response => {
+                //     if (response.ok) {
+                //         console.log('ok');
+                //     }
+                // }); 
+            }
+        }
+    });
+    // $('#colorpicker').farbtastic('#color');
+
+    userTools.addEventListener('click', function(event){
+        if (event.target && event.target.classList.contains('button_standart_color')) {
+            let farbtastic = $.farbtastic('#colorpicker');
+            farbtastic.setColor(standartCanvasColor);
+            userTools.setAttribute('data-color', standartCanvasColor);
+            socket.send(JSON.stringify({
+                'type': 'save_color_canvas',
+                'color': standartCanvasColor
+            }));
+        }
+    });
+
+    
+
+    // const colorPicker = document.getElementById('colorpicker');
+    // colorPicker.addEventListener('click', function () {
+    //     canvas.style.backgroundColor = $.farbtastic('#colorpicker').color;
+    // })
+
     function getTouchPos(event) {
         const rect = canvas.getBoundingClientRect();
         return {
@@ -22,6 +210,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let y = event.offsetY || getTouchPos(event).y;
 
         // Начинаем новый путь
+        // ctx.beginPath();
+        // ctx.moveTo(x, y);
         // ctx.beginPath();
         // ctx.moveTo(x, y);
         
@@ -41,6 +231,10 @@ document.addEventListener('DOMContentLoaded', function() {
             let x = event.offsetX || getTouchPos(event).x;
             let y = event.offsetY || getTouchPos(event).y;
 
+            // ctx.beginPath();
+            // ctx.moveTo(x, y);
+            // ctx.lineTo(x, y);
+            // ctx.stroke();
             // Отправляем координаты на сервер
             socket.send(JSON.stringify({
                 'x': x,
@@ -66,76 +260,62 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.addEventListener('touchmove', draw);
     canvas.addEventListener('touchend', stopDrawing);
 
-    // Получаем данные от сервера
-    socket.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        
-        if (data.type === 'start') {
-            // Начинаем новый путь
-            ctx.beginPath();
-            ctx.moveTo(data.x, data.y);
-        } else if (data.type === 'draw') {
-            // Продолжаем рисовать
-            ctx.lineTo(data.x, data.y);
-            ctx.stroke();
-        } else if (data.type === 'clear') {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-    };
-});
 
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    const chatSocket = new WebSocket('ws://' + url + '/ws/chat/');
-    const socket = new WebSocket('ws://' + url + '/ws/draw/');
-    const chatInput = document.getElementsByClassName('chat_write')[0];
-    const btnSend = document.getElementsByClassName('btn_send_mes')[0];
-    const chatWatch = document.getElementsByClassName('chat_watch')[0];
-    const btnConfUsername = document.getElementsByClassName('btn_conf_username')[0];
-    const inpUsername = document.getElementsByClassName('inp_username')[0];
-    const currentUsers = document.getElementsByClassName('current_users')[0];
-    const buttonReady = document.getElementsByClassName('ready_button')[0];
-    const mainDiv = document.getElementsByClassName('main')[0];
-    const canvas = document.getElementById('drawingCanvas');
-    const ctx = canvas.getContext('2d');
-    const labelLeaderAndWhatWasWord = document.getElementsByClassName('label_leader_and_what_was_word')[0];
-    const gameTimerAndGameStatus = document.getElementsByClassName('game_timer')[0];
-    var word;
-    let chooseWordTimer;
-    let gameTimer;
-    canvas.style.pointerEvents = 'none';
-
-    function clearTimers() {
-        if (chooseWordTimer) clearInterval(chooseWordTimer);
-        if (gameTimer) clearInterval(gameTimer);
-    }
-
+    // ведущий нажал на слово
     mainDiv.addEventListener('click', function(event){
         if (event.target && event.target.classList.contains('selectable_word')) {
             const choosedWord = event.target.textContent;  // Или event.target.innerText
-            clearInterval(chooseWordTimer);
-            presenter_choosed_word(choosedWord);
+            // clearInterval(chooseWordTimer);
+            socket.send(JSON.stringify({
+                'type': 'leader_choosed_word',
+                'word': choosedWord
+            }));
+            // presenter_choosed_word(choosedWord);
         }
     });
 
-    mainDiv.addEventListener('click', function(event){
+    // ведущий нажал на кнопку инструмента
+    chatWr.addEventListener('click', function(event){
         if (event.target && event.target.classList.contains('clear_button')) {
-            const clearButton = document.getElementsByClassName('clear_button')[0];
-            clearButton.addEventListener('click', function() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+            // const clearButton = document.getElementsByClassName('clear_button')[0];
+            // clearButton.addEventListener('click', function() {
+            // ctx.clearRect(0, 0, canvas.width, canvas.height);
             socket.send(JSON.stringify({
                 'type': 'clear'
             }));
-        });
+        // });
         }
+        if (event.target && event.target.classList.contains('eraser')) {
+            let eraser = document.getElementsByClassName('eraser')[0];
+            // eraser.addEventListener('click', function () {
+            console.log(eraser.textContent);
+            
+            if (eraser.textContent == 'Стёрка'){
+                eraser.textContent = 'Кисть';
+                socket.send(JSON.stringify({
+                    'type': 'change_drawing_tool',
+                    'drawing_tool': 'eraser'
+                }));
+            } else if (eraser.textContent == 'Кисть'){
+                eraser.textContent = 'Стёрка';
+                socket.send(JSON.stringify({
+                    'type': 'change_drawing_tool',
+                    'drawing_tool': 'brush'
+                }));
+            }
+            // });
+        }
+        if (event.target && event.target.classList.contains('change_brush_color')) {
+            
+        };
+
+        
     });
 
     function presenter_choosed_word(choosedWord) {
         const wordsForPresenter = document.getElementsByClassName('words_for_presenter')[0];
         wordsForPresenter.remove();
-
+        
         const wordForPresenter = document.createElement("div");
         wordForPresenter.classList.add('word_for_presenter');
         wordForPresenter.textContent = 'Ваше слово: ' + choosedWord.toUpperCase();
@@ -143,32 +323,43 @@ document.addEventListener('DOMContentLoaded', function() {
         currentUsers.insertAdjacentElement('afterend', wordForPresenter);
         canvas.style.pointerEvents = 'auto';
 
+        let eraser = document.createElement('button');
+        eraser.classList.add('eraser', 'leader_tool');
+        eraser.textContent = 'Стёрка';
+
+        let changeBrushColor = document.createElement('button');
+        changeBrushColor.classList.add('change_brush_color', 'leader_tool');
+        changeBrushColor.textContent = 'Цвет';
+
         const buttonClearCanvas = document.createElement('button');
-        buttonClearCanvas.classList.add('clear_button');
+        buttonClearCanvas.classList.add('clear_button', 'leader_tool');
         buttonClearCanvas.textContent = 'Очистить';
-        labelLeaderAndWhatWasWord.insertAdjacentElement('afterend', buttonClearCanvas);
 
-        chatSocket.send(JSON.stringify({
-                'type': 'presenter_choosed_word',
-                'word': choosedWord
-            }));
+        labelLeaderAndWhatWasWord.insertAdjacentElement('afterend', eraser);
+        eraser.insertAdjacentElement('afterend', changeBrushColor);
+        changeBrushColor.insertAdjacentElement('afterend', buttonClearCanvas);
+
+        // socket.send(JSON.stringify({
+        //         'type': 'presenter_choosed_word',
+        //         'word': choosedWord
+        //     }));
     }
 
-    function startTimerChooseWord(words) {
-        let timeLeft = 9;
-        const timerElement = document.getElementsByClassName("timer_choose_word")[0];
+    // function startTimerChooseWord(words) {
+    //     let timeLeft = 9;
+    //     const timerElement = document.getElementsByClassName("timer_choose_word")[0];
 
-        chooseWordTimer = setInterval(function() {
-            if (timeLeft <= 0) {
-                clearInterval(chooseWordTimer);
-                const chooseRandomWord = words[Math.floor(Math.random() * words.length)];
-                presenter_choosed_word(chooseRandomWord);
-            } else {
-                timerElement.textContent = timeLeft;
-                timeLeft -= 1;
-            }
-        }, 1000);
-    }
+    //     chooseWordTimer = setInterval(function() {
+    //         if (timeLeft <= 0) {
+    //             clearInterval(chooseWordTimer);
+    //             const chooseRandomWord = words[Math.floor(Math.random() * words.length)];
+    //             presenter_choosed_word(chooseRandomWord);
+    //         } else {
+    //             timerElement.textContent = timeLeft;
+    //             timeLeft -= 1;
+    //         }
+    //     }, 1000);
+    // }
 
     function startGameTimerFun() {
         let timeLeft = 10;
@@ -199,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearInterval(gameAfterGameTimer);
                 gameTimerAndGameStatus.textContent = 'Ведущий выбирает слово 1';
                 clearTimers();
-                chatSocket.send(JSON.stringify({
+                socket.send(JSON.stringify({
                     'type': 'are_ready',
                     'skip_send_ready': 'yes'
                 }));
@@ -221,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
             send_socket_readiness('not_ready');
         }
         function send_socket_readiness(are_ready) {
-            chatSocket.send(JSON.stringify({
+            socket.send(JSON.stringify({
                 'type': 'are_ready',
                 'are_ready': are_ready,
                 'skip_send_ready': 'no'
@@ -237,38 +428,99 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     btnConfUsername.addEventListener('click', function(){
-        if (inpUsername.value != ''){
-            chatSocket.send(JSON.stringify({
-                'type': 'change_username',
-                'message': inpUsername.value
-        }));     
-        }
-        
-        fetch('/change_username/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 'username': inpUsername.value })
-        }).then(response => {
-            if (response.ok) {
-                let welcomeText = document.getElementsByClassName('welcome_header')[0];
-                welcomeText.textContent = 'Добро пожаловать, ' + inpUsername.value;
-                inpUsername.value = ''; 
+        if (inpUsername.value.indexOf(' ') != -1 || inpUsername.value.length > 15 || inpUsername.value.length == ''){
+            let usernameIsIncorrect = document.createElement('div');
+            usernameIsIncorrect.classList.add('username_is_incorrect');
+            usernameIsIncorrect.textContent = 'Допускается не более 15 символов и отсутствие пробелов';
+            usernameIsIncorrect.style.width = `${inpUsername.offsetWidth}px`;
+            inpUsername.insertAdjacentElement('afterend', usernameIsIncorrect);
+            setTimeout(() => {
+                usernameIsIncorrect.remove();
+            }, 7000);
+        } else {
+            let userFound = false;
+            let allUsernames = document.querySelectorAll('.current_user');
+            for (let i = 0; i < allUsernames.length; i++) {
+                let username = allUsernames[i];
+                if (username.textContent.trim() == inpUsername.value) {
+                    let usernameIsIncorrect = document.createElement('div');
+                    usernameIsIncorrect.classList.add('username_is_incorrect');
+                    usernameIsIncorrect.textContent = 'Пользователь с данным никнеймом уже находится в игре';
+                    usernameIsIncorrect.style.width = `${inpUsername.offsetWidth}px`;
+                    inpUsername.insertAdjacentElement('afterend', usernameIsIncorrect);
+                    setTimeout(() => {
+                        usernameIsIncorrect.remove();
+                    }, 7000);
+                    userFound = true;
+                    break; 
+                }
+            } 
+            if (!userFound){
+                socket.send(JSON.stringify({
+                    'type': 'change_username',
+                    'message': inpUsername.value
+                }));
+                fetch('/change_username/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 'username': inpUsername.value })
+                }).then(response => {
+                    if (response.ok) {
+                        let welcomeText = document.getElementsByClassName('welcome_header')[0];
+                        welcomeText.textContent = 'Добро пожаловать, ' + inpUsername.value;
+                        inpUsername.value = ''; 
+                    }
+                });  
             }
-        });
+        };
+
+        // if (inpUsername.value != ''){
+        //     socket.send(JSON.stringify({
+        //         'type': 'change_username',
+        //         'message': inpUsername.value
+        //     }));   
+        //     fetch('/change_username/', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({ 'username': inpUsername.value })
+        //     }).then(response => {
+        //         if (response.ok) {
+        //             let welcomeText = document.getElementsByClassName('welcome_header')[0];
+        //             welcomeText.textContent = 'Добро пожаловать, ' + inpUsername.value;
+        //             inpUsername.value = ''; 
+        //         }
+        //     });  
+        // }
+        
+        // fetch('/change_username/', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({ 'username': inpUsername.value })
+        // }).then(response => {
+        //     if (response.ok) {
+        //         let welcomeText = document.getElementsByClassName('welcome_header')[0];
+        //         welcomeText.textContent = 'Добро пожаловать, ' + inpUsername.value;
+        //         inpUsername.value = ''; 
+        //     }
+        // });
     });
 
     chatInput.addEventListener('keydown', function(event) {
        if (event.key === 'Enter'){
           event.preventDefault();
-          btnSend.click();
+          btnSend.click(); 
        } 
     });
 
     btnSend.addEventListener('click', function() {
         if (chatInput.value != ''){
-            chatSocket.send(JSON.stringify({
+            socket.send(JSON.stringify({
                 'type': 'send_message',
                 'message': chatInput.value
             }));
@@ -276,10 +528,60 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
 
-    chatSocket.onmessage = function(event) {
+    // const eraser = document.getElementsByClassName('eraser')[0];
+    // eraser.addEventListener('click', function () {
+    //     if (eraser.textContent == 'Стёрка'){
+    //         eraser.textContent = 'Кисть';
+    //         ctx.lineWidth = 15;
+    //         ctx.globalCompositeOperation = "destination-out";
+    //     } else {
+    //         eraser.textContent = 'Стёрка';
+    //         ctx.lineWidth = 1;
+    //         ctx.globalCompositeOperation = "source-over";
+    //     }
+    // });
+
+    socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
 
-        if (data.type == 'send_message'){
+        if (data.type == 'start') {
+            // Начинаем новый путь
+            ctx.beginPath();
+            ctx.moveTo(data.x, data.y);
+        } else if (data.type == 'draw') {
+            // ctx.globalCompositeOperation = "destination-out";
+            ctx.lineTo(data.x, data.y);
+            ctx.stroke();
+        } else if (data.type == 'clear') {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        } else if (data.type == 'change_drawing_tool') {
+            if (data.drawing_tool == 'eraser'){
+                console.log('сейчас стёрка');
+                ctx.lineWidth = 15;
+                ctx.globalCompositeOperation = "destination-out";
+            } else if (data.drawing_tool == 'brush') {
+                console.log('сейчас кисть');
+                ctx.lineWidth = 1;
+                ctx.globalCompositeOperation = "source-over";
+            }
+        } 
+
+        else if (data.type == 'leader_chooses_word_timer'){
+            let timerChooseWord = document.getElementsByClassName('timer_choose_word')[0];
+            timerChooseWord.textContent = data.time_left
+        } else if (data.type == 'show_word_for_leader'){
+            presenter_choosed_word(data.word_for_guessing)
+        } else if (data.type == 'start_game_timer'){
+            gameTimerAndGameStatus.textContent = data.time_left_start_game_timer + ' сек.';
+        } else if (data.type == 'clear_leader_tools'){
+            canvas.style.pointerEvents = 'none';
+            const word_for_presenter = document.getElementsByClassName('word_for_presenter')[0];
+            const clear_button = document.getElementsByClassName('clear_button')[0];
+            const eraser = document.getElementsByClassName('eraser')[0];
+            word_for_presenter.remove();
+            clear_button.remove();
+            eraser.remove();
+        } else if (data.type == 'send_message'){
             var chatMsgWr = document.createElement('div');
             chatMsgWr.classList.add('chat_msg_wr');
     
@@ -309,10 +611,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
             chatWatch.appendChild(chatMsgWr);
             chatWatch.scrollTop = chatWatch.scrollHeight;
-        } else if (data.type == 'update_current_users'){
-            let current_users_to_del = document.querySelectorAll('.current_user');
-            current_users_to_del.forEach(element => {
-                element.remove();
+        } else if (data.type == 'del_current_user'){
+            let all_usernames = document.querySelectorAll('.current_user');
+            all_usernames.forEach(username => {
+                if (username.textContent.trim() == data.username){
+                    username.nextElementSibling.remove();
+                    username.remove();
+                }
+            });
+        } else if (data.type == 'add_new_user'){
+            let all_usernames = document.querySelectorAll('.current_user');
+            all_usernames.forEach(username => {
+                username.nextElementSibling.remove();
+                username.remove();
             });
             for (let currentUserKey in data.current_users){
                 var currentUser = document.createElement('span');
@@ -323,8 +634,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentUser.style.color = 'green';
                 }
                 currentUser.textContent = currentUserKey + ' ';
+                let userPoints = document.createElement('span');
+                userPoints.textContent = data.current_users[currentUserKey]['points'] + ' ';
                 currentUsers.appendChild(currentUser);
+                currentUsers.appendChild(userPoints);
             }
+        } else if (data.type == 'add_points'){
+            let change_points_user = document.querySelectorAll('.current_user');
+            for (let i = 0; i < change_points_user.length; i++) {
+                let username = change_points_user[i];
+                if (username.textContent.trim() == data.username) {
+                    username.nextElementSibling.textContent = data.points + ' ';
+                    break; 
+                }
+            };
         } else if (data.type == 'are_ready'){
             let change_readiness_user = document.querySelectorAll('.current_user');
             for (let i = 0; i < change_readiness_user.length; i++) {
@@ -342,9 +665,10 @@ document.addEventListener('DOMContentLoaded', function() {
             let welcomeText = document.getElementsByClassName('welcome_header')[0];
             welcomeText.textContent = 'Добро пожаловать, ' + data.username;
         } else if (data.type == 'make_leader'){
+            chatInput.disabled = true;
+            chatInput.placeholder = 'Вы ведущий';
 
             var wordsForPresenter = document.createElement('div');
-
             wordsForPresenter.classList.add('words_for_presenter');
 
             var chooseWord = document.createElement('div');
@@ -370,27 +694,44 @@ document.addEventListener('DOMContentLoaded', function() {
             wordsForPresenter.appendChild(timerChooseWord);
             mainDiv.appendChild(wordsForPresenter);
 
-            startTimerChooseWord(data.words)
-        } else if (data.type == 'guess_word') {
-            word = data.word
-            gameTimerAndGameStatus.textContent = 'Осталось времени: 90 сек.';
-            if (document.getElementsByClassName('word_for_presenter')[0]){
-                let wordForPresenter = document.getElementsByClassName('word_for_presenter')[0];
-                // startGameTimer.style.marginTop = '20px';
-                // wordForPresenter.insertAdjacentElement('afterend', startGameTimer);
-            } else {
-                // currentUsers.insertAdjacentElement('afterend', startGameTimer);
-            }
-            startGameTimerFun();
+            // startTimerChooseWord(data.words);
+        // } else if (data.type == 'guess_word') {
+        //     word = data.word
+        //     gameTimerAndGameStatus.textContent = 'Осталось времени: 90 сек.';
+        //     if (document.getElementsByClassName('word_for_presenter')[0]){
+        //         let wordForPresenter = document.getElementsByClassName('word_for_presenter')[0];
+        //         // startGameTimer.style.marginTop = '20px';
+        //         // wordForPresenter.insertAdjacentElement('afterend', startGameTimer);
+        //     } else {
+        //         // currentUsers.insertAdjacentElement('afterend', startGameTimer);
+        //     }
+        //     startGameTimerFun();
         } else if (data.type == 'user_guessed_word'){
-            chatInput.disabled = true;
-            chatInput.placeholder = 'Поздравляем, вы угадали слово'
-        } else if (data.type == 'label_who_is_leader'){
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            gameTimerAndGameStatus.textContent = 'Ведущий выбирает слово';
-            labelLeaderAndWhatWasWord.textContent = 'Ведущий: ' + data.leader_nickname;
-        }
+            const messages = document.querySelectorAll('.chat_message');
+            const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+            if (lastMessage) {
+                lastMessage.textContent = data.word;
+            }
+            if (!data.is_leader){
+                chatInput.placeholder = 'Поздравляем, вы угадали слово';
+                chatInput.disabled = true;
+            }
+        } else if (data.type == 'change_status_label'){
+            gameTimerAndGameStatus.textContent = data.message_status
+            labelLeaderAndWhatWasWord.textContent = data.message_status_2;
+            chatInput.disabled = false;
+            chatInput.placeholder = 'Угадайте слово';
+        } 
     };
+
+    canvas.addEventListener('touchstart', function(event) { 
+        event.preventDefault(); 
+    }, { passive: false });
+    
+    canvas.addEventListener('touchmove', function(event) { 
+        event.preventDefault(); 
+    }, { passive: false });
+    
 });
 
 

@@ -16,7 +16,16 @@ def home(request):
 def change_username(request):
     data = json.loads(request.body)
     username = data.get('username')
-    # print('имя: ', username)
+    print('имя: ', username)
     request.session['username'] = username
     return JsonResponse({}, status=200)
+    
+# @csrf_exempt
+# @require_POST
+# def save_color_canvas(request):
+#     data = json.loads(request.body)
+#     color = data.get('color')
+#     request.session['current_canvas_color'] = color
+#     print(color)
+#     return JsonResponse({}, status=200)
     

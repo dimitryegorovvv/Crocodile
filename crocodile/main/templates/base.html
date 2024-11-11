@@ -7,11 +7,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-    <meta name="viewport" content="width=1224">
+    <!-- <meta name="viewport" content="width=1224"> -->
+    <meta name="viewport" content="width=1300">
     <title>{% block title %} Главная {% endblock %}</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'farbtastic.css' %}">
     <script src="{% static 'script.js' %}" defer></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'jquery-3.7.1.min.js' %}" defer></script>
+    <script src="{% static 'farbtastic.js' %}" defer></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 </head>  
 <body>
     <div class="header">
@@ -20,12 +24,20 @@
         </a>
         <div class="username_ent_wr">
             <input class="inp_username" placeholder="Введите ваш никнейм" type="text">
+            <!-- <div class="username_is_incorrect">Допускается не более 15 символов и отсутствие пробелов</div> -->
             <button class="btn_conf_username">Подтвердить</button>
         </div>
         <div class="ready_wr">
             <span>Ваш статус:&nbsp;</span>
             <button class="ready_button">Не готов</button>
         </div>
+        <button class="user_tools" data-color='{{ request.session.color }}'>Кастомизация
+            <!-- <div class="canvas_BC_choose">
+                <div class="canvas_BC_choose_label">Выбор цвета доски</div>
+                <input type="text" id="color" name="color" value="#123456" />
+                <div id="colorpicker"></div>
+            </div> -->
+        </button>
         <div class="welcome_header">
             Добро пожаловать, {{ request.session.username }}
         </div>
