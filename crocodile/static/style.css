@@ -2,7 +2,10 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "Montserrat", 'Trebuchet MS';
+    font-weight: 500;
 }
+
 
 a{
     text-decoration: none;
@@ -14,6 +17,11 @@ body{
     font-family: "Montserrat", 'Trebuchet MS';
     background-color: #0f0f0f;
     color:#f1f1f1;
+    background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url('images/bg_3.jpg');
+    /* background-position: center -150px; */
+    /* background-size: cover; */
+    /* background-color: #9f1515; */
+    /* font-weight: 600; */
 }
 
 button{
@@ -67,23 +75,29 @@ input:focus{
     font-size: 15px;
 }
 
+.main_page{
+    /* font-size: 18px; */
+}
+
 .main{
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-bottom: 100px;
+    padding-bottom: 80px;
     /* padding: 0 100px; */
 }
 
 canvas{
-    margin-top: 50px;
+    margin-top: 25px;
     touch-action: none;
     /* background-color: #c54242; */
     /* background-color: #b3beeb; */
     background-color: #0f0f0f;
     border-radius: 10px;
     margin-right: 20px;
+    /* background: url('images/billy_mot.gif') ; */
+    background-size: cover;
 }
 
 
@@ -97,7 +111,7 @@ canvas{
     width: fit-content;
     padding: 10px 15px;
     border-radius: 10px;
-    font-size: 15px;
+    font-size: 14px;
     margin-right: 10px;
 }
 
@@ -133,7 +147,7 @@ canvas{
 }
 
 .chat_watch{
-    margin-top: 50px;
+    margin-top: 25px;
     width: 350px;
     height: 300px;
     background-color: #272727;
@@ -194,13 +208,15 @@ canvas{
     left: 50%;             /* Располагаем элемент на 50% от левого края */
     transform: translate(-50%, -50%); /* Сдвигаем элемент на половину его ширины и высоты */
     z-index: 9999;         /* Элемент будет отображаться поверх остальных элементов */
-    background-color: #0f0f0f; /* Темный фон с прозрачностью */
+    background-color: #9f1515;
+    /* background-color: #ee7205; */
     color: white;          /* Цвет текста */
-    padding: 20px;         /* Внутренние отступы для более удобного отображения */
+    padding: 30px;         /* Внутренние отступы для более удобного отображения */
     border-radius: 10px;   /* Скругленные углы */
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-weight: 400;
 }
 
 .selectable_word_wr{
@@ -209,11 +225,13 @@ canvas{
 }
 
 .selectable_word{
+    /* font-family: "Montserrat", sans-serif; */
     background-color: #272727;
     padding: 8px;
     border-radius: 10px;
     cursor: pointer;
     font-size: 15px;
+    font-weight: 500;
 }
 
 .choose_word{
@@ -221,7 +239,12 @@ canvas{
 }
 
 .word_for_presenter{
+    /* background-color: green; */
+    border: 2px solid green;
+    padding: 10px;
+    border-radius: 10px;
     margin-top: 10px;
+    font-weight: 500;
 }
 
 .timer_choose_word{
@@ -230,7 +253,8 @@ canvas{
 
 .game_timer{
     margin-top: 10px;
-    margin-bottom: -25px;
+    color: #d3a312;
+    /* margin-bottom: -25px; */
 }
 
 .img_check_mark{
@@ -261,10 +285,11 @@ canvas{
 .label_leader_and_what_was_word{
     background-color: #272727;
     width: fit-content;
-    max-width: 400px;
+    max-width: 350px;
     padding: 10px 15px;
     border-radius: 10px;
     font-size: 15px;
+    font-weight: 500;
 }
 
 .username_is_incorrect{
@@ -284,6 +309,7 @@ canvas{
     position: absolute;
     transform: translate(-25%);
     margin-top: 25px;
+    z-index: 2;
 }
 
 .canvas_BC_choose_label{
@@ -307,3 +333,143 @@ canvas{
     border: 1px solid #f1f1f1;
 }
 
+.change_brush_color{
+    position: relative;
+}
+
+.brush_color_choose{
+    position: absolute;
+    left: 50%; 
+    transform: translate(-50%, -120%);
+    /* top: -220px; */
+    /* background-color: #272727; */
+    /* padding: 20px; */
+    /* border: 5px solid #f1f1f1; */
+    /* border-radius: 10px; */
+}
+
+/* .eraser{
+    background: radial-gradient(circle, #ff6347 10%, transparent 10%) 0 0,
+                radial-gradient(circle, #ffa500 10%, transparent 10%) 10px 10px,
+                radial-gradient(circle, #32cd32 10%, transparent 10%) 20px 20px,
+                radial-gradient(circle, #4169e1 10%, transparent 10%) 30px 30px;
+    background-size: 40px 40px;
+    animation: blink-bg 5s infinite alternate;
+} */
+
+/* .user_tools{
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    position: relative;
+    background-color: #000;
+    overflow: hidden;
+} 
+
+.user_tools::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #ff6347 10%, transparent 10%) 0 0,
+                radial-gradient(circle, #ffa500 10%, transparent 10%) 20px 20px,
+                radial-gradient(circle, #32cd32 10%, transparent 10%) 40px 40px,
+                radial-gradient(circle, #4169e1 10%, transparent 10%) 60px 60px;
+    background-size: 80px 80px;
+    animation: blink-dots 5s infinite linear;
+}
+
+@keyframes blink-dots {
+    0% { filter: hue-rotate(0deg); opacity: 1; }
+    25% { filter: hue-rotate(90deg); opacity: 0.8; }
+    50% { filter: hue-rotate(180deg); opacity: 1; }
+    75% { filter: hue-rotate(270deg); opacity: 0.8; }
+    100% { filter: hue-rotate(360deg); opacity: 1; }
+}
+ */
+
+.brush_width{
+    padding: 0;
+    width: 70px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track{
+    background: #272727;
+    border-radius: 5px;
+}
+
+.chat_write, .inp_username::placeholder{
+    font-weight: 600;
+}
+
+.inp_username, .chat_write{
+    font-size: 15px;
+}
+
+.current_users, .game_timer{
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.audio{
+    margin-top: 200px;
+}
+
+.img_button_back{
+    border-radius: 10px;
+    height: 20px;
+    width: 20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+
+.button_back{
+    display: block;
+    padding: 0;
+    margin-top: 10px;
+    background-color: #272727;
+    height: 37.6px;
+    width: 37.6px;
+}
+
+
+.start_menu_wr{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 200px;
+}
+
+.start_menu_welcome{
+    font-size: 35px;
+    background-color: #0f0f0f;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.room_choose{
+    margin-top: 40px;
+}
+
+.room_button{
+    font-size: 18px;
+}
+
+.SM_username_input{
+    margin-top: 30px;
+    height: 80px;
+    width: 300px;
+    font-size: 20px;
+    background-color: #0f0f0f;
+    text-align: center;
+    border: 2px solid #f1f1f1;
+}
+
+.SM_username_input:hover{
+
+}

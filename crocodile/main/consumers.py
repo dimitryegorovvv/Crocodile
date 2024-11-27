@@ -5,92 +5,31 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
 
-# class DrawingConsumer(AsyncWebsocketConsumer):
-#     async def connect(self):
-#         # Имя группы для всех пользователей
-#         self.group_name = 'drawing_group'
 
-#         # Присоединяемся к группе
-#         await self.channel_layer.group_add(
-#             self.group_name,
-#             self.channel_name
-#         )
-
-#         # Принимаем WebSocket соединение
-#         await self.accept() 
-
-
-#     async def disconnect(self, close_code):
-#         # Отключаемся от группы
-#         await self.channel_layer.group_discard(
-#             self.group_name,
-#             self.channel_name
-#         )
-#         print(f"Client disconnected with close code {close_code}")
-
-#     # Получаем сообщение от клиента
-#     async def receive(self, text_data):
-#         data = json.loads(text_data)
-#         type = data['type']
-
-#         if type == 'clear':
-#             await self.channel_layer.group_send(self.group_name, {
-#                 'type': 'broadcast_message',
-#                 'msg_type': 'clear'
-#             })
-#         elif type == 'draw':   
-#             x = data['x']
-#             y = data['y']
-#             await self.channel_layer.group_send(self.group_name, {
-#                 'type': 'broadcast_message',
-#                 'x': x,
-#                 'y': y,
-#                 'msg_type': 'draw'
-#             })
-
-
-#     # Обрабатываем событие рисования
-#     async def broadcast_message(self, event):
-#         msg_type = event['msg_type']
-#         if msg_type == 'clear':
-#             await self.send(text_data=json.dumps({
-#                 'type': msg_type
-#             }))
-#         else:
-#             x = event['x']
-#             y = event['y']
-#             await self.send(text_data=json.dumps({
-#                 'x': x,
-#                 'y': y,
-#                 'type': msg_type  # Передаем тип ('start' или 'draw')
-#             }))
-
-
-current_users = {}
-words_2 = [
-    "автомобиль", "бабочка", "песочница", "карандаш", "корабль",
-    "гриб", "слон", "мороженое", "компьютер", "зонтик", "река", 
-    "телефон", "фрукты", "банан", "велосипед", "медведь", "снеговик",
-    "музыка", "деньги", "рыба", "апельсин", "кафе", "праздник",
-    "парикмахер", "снег", "кубик", "самолет", "время", "вокзал",
-    "лес", "бабушка", "кафедра", "тетрадь", "акула", "костюм",
-    "картина", "пляж", "замок", "груша", "окно", "артист", 
-    "море", "блокнот", "пылесос", "пицца", "ручка", "кит", 
-    "часы", "лист", "лифт", "акробат", "клавиатура", "лампа",
-    "окунь", "подарок", "клоун", "чайник", "ананас", "гвоздь",
-    "лошадь", "такси", "лодка", "перчатка", "телескоп", "стакан",
-    "автобус", "шар", "самокат", "платье", "облако", "дождь",
-    "трактор", "юрист", "кинотеатр", "огурец", "торт", "чайка",
-    "ракета", "пингвин", "ковер", "тарелка", "кактус", "ежик",
-    "газета", "фотоаппарат", "ветер", "парк", "мышь", "кувшин",
-    "скатерть", "картофель", "чемодан", "батарея", "фотоальбом",
-    "подушка", "газировка", "шарф", "ящерица", "бутылка", "поезд",
-    "лыжи", "прыжок", "суп", "скворечник", "галстук", "фонарь",
-    "огонь", "птица", "карантин", "дракон", "доллар", "стол",
-    "конфета", "туалет", "черепаха", "птица", "звезда", "цирк",
-    "кошка", "тигр", "озеро", "рак", "луна", "цветок", "шапка",
-    "часы", "ключ", "берег", "пальма", "чай", "ёлка"
-]
+# words_2 = [
+#     "автомобиль", "бабочка", "песочница", "карандаш", "корабль",
+#     "гриб", "слон", "мороженое", "компьютер", "зонтик", "река", 
+#     "телефон", "фрукты", "банан", "велосипед", "медведь", "снеговик",
+#     "музыка", "деньги", "рыба", "апельсин", "кафе", "праздник",
+#     "парикмахер", "снег", "кубик", "самолет", "время", "вокзал",
+#     "лес", "бабушка", "кафедра", "тетрадь", "акула", "костюм",
+#     "картина", "пляж", "замок", "груша", "окно", "артист", 
+#     "море", "блокнот", "пылесос", "пицца", "ручка", "кит", 
+#     "часы", "лист", "лифт", "акробат", "клавиатура", "лампа",
+#     "окунь", "подарок", "клоун", "чайник", "ананас", "гвоздь",
+#     "лошадь", "такси", "лодка", "перчатка", "телескоп", "стакан",
+#     "автобус", "шар", "самокат", "платье", "облако", "дождь",
+#     "трактор", "юрист", "кинотеатр", "огурец", "торт", "чайка",
+#     "ракета", "пингвин", "ковер", "тарелка", "кактус", "ежик",
+#     "газета", "фотоаппарат", "ветер", "парк", "мышь", "кувшин",
+#     "скатерть", "картофель", "чемодан", "батарея", "фотоальбом",
+#     "подушка", "газировка", "шарф", "ящерица", "бутылка", "поезд",
+#     "лыжи", "прыжок", "суп", "скворечник", "галстук", "фонарь",
+#     "огонь", "птица", "карантин", "дракон", "доллар", "стол",
+#     "конфета", "туалет", "черепаха", "птица", "звезда", "цирк",
+#     "кошка", "тигр", "озеро", "рак", "луна", "цветок", "шапка",
+#     "часы", "ключ", "берег", "пальма", "чай", "ёлка"
+# ]
 
 words_1 = [
     "книга", "стол", "кот", "машина", "телефон", "космос", "дерево", 
@@ -102,85 +41,182 @@ words_1 = [
     "мороженое", "кофе", "радуга", "дождь", "море", "кактус", "лист"
 ]
 
-crocodile_words = [
-    "абажур", "авокадо", "айсберг", "акробат", "антилопа", "бабочка", "балет", "банан",
-    "барабан", "бассейн", "безе", "бензин", "бетон", "бильярд", "бита", "блюдце", "богатырь",
-    "болото", "борода", "бублик", "ваза", "валенки", "варенье", "вертолет", "виноград",
-    "волшебник", "воробей", "воск", "гвоздь", "гладильная", "глобус", "гном", "голубь", 
-    "горчица", "дедушка", "джунгли", "динозавр", "диск", "диван", "дождь", "дракон", 
-    "ёжик", "жаба", "забор", "зеркало", "иглу", "инопланетянин", "йогурт", "кактус", 
-    "камбала", "канат", "картофель", "карусель", "киви", "колесо", "компьютер", 
-    "космонавт", "котенок", "краб", "кресло", "кукуруза", "лампа", "лебедь", "лента", 
-    "лимон", "лобстер", "лошадь", "лото", "лук", "маска", "медведь", "метла", "микрофон", 
-    "морковка", "мороз", "муравей", "мыло", "носорог", "облако", "огонь", "озеро", 
-    "орел", "осьминог", "папа", "папоротник", "перо", "пингвин", "пистолет", "пицца", 
-    "пожар", "подводная лодка", "помидор", "пончик", "попугай", "принцесса", "пуля", 
-    "радио", "ракета", "радуга", "русалка", "рыцарь", "сапог", "сауна", "свинья", 
-    "семечки", "скейтборд", "скелет", "слон", "солнце", "спутник", "стул", "сумка", 
-    "суши", "татуировка", "телевизор", "трактор", "тыковка", "флаг", "фонарик", "хлеб", 
-    "чайник", "черепаха", "шар", "шашки", "шоколад", "экскаватор", "эльф", "юмор", 
-    "яблоко", "якорь"
+# words_3 = [
+#     "акробат", "балерина", "вагон", "глобус", "дельфин", "ежик", "жонглер", "замок", 
+#     "икона", "йогурт", "кактус", "лампа", "мышь", "носорог", "облако", "паровоз", 
+#     "ракета", "слон", "трамвай", "утка", "фонарь", "хомяк", "цирк", "черепаха", 
+#     "шкаф", "экскаватор", "эльф", "якорь", "яблоко", "ангел", "бабочка", "вулкан", 
+#     "гитара", "дом", "ежедневник", "жаба", "зебра", "корзина", "линейка", "луна", 
+#     "микрофон", "морковка", "небо", "олень", "пылесос", "пицца", "рыцарь", "рыба", 
+#     "собака", "солнце", "танк", "телевизор", "трактор", "улыбка", "чайник", "шарик"
+# ]
+
+# words_4 = [
+#     "телефон", "ноутбук", "компьютер", "микросхема", "экран", "микрофон", "пульт", 
+#     "динамик", "робот", "модем", "планшет", "принтер", "лампа", "процессор", 
+#     "аккумулятор", "камера", "часы", "магнитофон", "гаджет", "термостат", 
+#     "электрод", "резистор", "конденсатор", "телевизор", "трансформатор", 
+#     "зарядка", "микроконтроллер", "наушники", "видеокарта", "жесткий диск", 
+#     "флешка", "клавиатура", "мышь", "паяльник", "схема", "разъем", "усилитель", 
+#     "плата", "сенсор", "интегральная схема", "осциллограф", "терминал", 
+#     "джойстик", "сканер", "микрофон", "батарея", "смарт-часы", "дисплей", 
+#     "проектор", "лазер", "микронаушник", "кулон", "термометр", "утюг"
+# ]
+
+
+# words_5 = [
+#     "старинный", "пыль", "антиквариат", "лампа", "картина", "вещи", "часы", 
+#     "коробка", "посуда", "мебель", "монеты", "книги", "винтаж", "продавец", 
+#     "покупатель", "торг", "коллекция", "плакат", "сувенир", "граммофон", 
+#     "шкатулка", "рюкзак", "стол", "стул", "полка", "ткань", "одежда", 
+#     "ботинки", "зеркало", "шляпа", "чемодан", "письма", "радио", "фотоаппарат", 
+#     "пепельница", "чайник", "швейная машина", "подсвечник", "кукла", 
+#     "телефон", "фотография", "ковёр", "гитара", "игрушка", "рукопись", 
+#     "монополь", "пластинка", "сервант"
+# ]
+gachi_muchi_words = [
+    "шляпа", "кожанка", "очки", "усики", "друзья", "спортзал", 
+    "бицепс", "музыка", "пот", "танец", "грусть", "радость", 
+    "пресс", "силовая тренировка", "бодибилдинг", "энергия", 
+    "дружба", "кардио", "командная работа", "ринг", "борьба", 
+    "коврик", "гантели", "штанга", "фитнес", "юмор", "мем", 
+    "сцена", "видеоролик", "сила", "игра"
+]
+
+death_words = [
+    "кладбище", "надгробие", "костюм", "траур", "венок", "память", 
+    "гроб", "свеча", "сумрак", "призрак", "ангел", "кремация", 
+    "крест", "прах", "могила", "хор", "панихида", "вечность", 
+    "скорбь", "потусторонний", "темнота", "финал", "прощание", 
+    "судьба", "тишина", "мрак", "жизнь", "потеря", "традиция"
+]
+
+prison_words = [
+    "камера", "решетка", "надзиратель", "побег", "заключенный", "суд", "замок", 
+    "цепь", "тюремщик", "арест", "приговор", "свидание", "срок", "побег", 
+    "переодевание", "тюремная форма", "обед", "столовая", "одиночка", 
+    "охрана", "собака", "закон", "трибунал", "тюремные ворота", 
+    "карцер", "надзор", "отчуждение", "строгий режим", "срок", 
+    "решетка", "прогулка", "письмо", "посылка", "тюремный двор"
+]
+
+drug_words = [
+    "наркотики", "зависимость", "доза", "передозировка", "реабилитация", 
+    "героин", "кокаин", "марихуана", "каннабис", "амфетамины", 
+    "метамфетамин", "экстази", "опиаты", "спайс", "крек", 
+    "метадон", "таблетки", "абстиненция", "лечебница", 
+    "детокс", "трафик", "контрабанда", "синтетика", 
+    "рецидив", "препарат", "запрет", "препарат", 
+    "тест", "куратор", "вещество", "психоз"
 ]
 
 
-words = crocodile_words
+
+
+# words = gachi_muchi_words + death_words + prison_words + drug_words
+words = words_1
+rooms_date = {}
+technical_info = {}
+    # 'technical_info[self.group_name]['random_words_for_leader']': [],
+    # 'technical_info[self.group_name]['word_for_guessing']': None,
+    # 'technical_info[self.group_name]['leader'] ': None,
+    # 'need_stop_timer': False,
+    # 'technical_info[self.group_name]['stop_event']': asyncio.Event(),
+    # 'technical_info[self.group_name]['all_are_ready']': False,
+    # 'technical_info[self.group_name]['need_stop_game']': False,
+    # 'technical_info[self.group_name]['is_now_game']': False,
+    # 'technical_info[self.group_name]['data']': None,
+# }
+
 # words = ['кофе', 'ноутбук', 'мел', 'ручка', 'нефть']
-random_words_for_leader = []
-word_for_guessing = None
-leader = None
-need_stop_timer = False
-stop_event = asyncio.Event()
-all_are_ready = False
-test = False
-need_stop_game = False
-is_now_game = False
-data = None
-users_count = 0
+# technical_info[self.group_name]['technical_info[self.group_name]['word_for_guessing']'] = []
+# technical_info[self.group_name]['technical_info[self.group_name]['is_now_game']'] '] = None
+# technical_info[self.group_name]['technical_info[self.group_name]['all_are_ready']']  = None
+# need_stop_timer = False
+# technical_info[self.group_name]['stop_event'] = asyncio.Event()
+# technical_info[self.group_name]['technical_info[self.group_name]['stop_event']'] = False
+# technical_info[self.group_name]['technical_info[self.group_name]['data']'] = False
+# technical_info[self.group_name]['technical_info[self.group_name]['need_stop_game']'] = False
+# technical_info[self.group_name]['data'] = None
+
+
 
 class DrawingConsumer(AsyncWebsocketConsumer):
+    joined_room = False
     async def connect(self):
+        for room_number in rooms_date:
+            if len(rooms_date[room_number]) < 5:
+                self.group_name = room_number
+                self.joined_room = True
+                break
 
-        # if len(current_users) >= 2:
-        #     self.group_name = 'new'
-        # else:
-        #     self.group_name = 'chat_group'
-        global users_count
-        users_count += 1
-
-
-        # self.group_name = 'chat_group'
-        self.group_name = 'chat_group' + str(users_count)
+        if self.joined_room == False:
+            for room_number in range(0, 999):
+                if ('room_' + str(room_number)) not in rooms_date:
+                    self.group_name = 'room_' + str(room_number)
+                    break
 
         await self.channel_layer.group_add(
             self.group_name,
             self.channel_name
         )
 
+        await self.accept()
+        if self.group_name not in rooms_date:
+            rooms_date[self.group_name] = {}
+            technical_info[self.group_name] = {
+                'random_words_for_leader': [],
+                'word_for_guessing': None,
+                'leader': None,
+                'stop_event': asyncio.Event(),
+                'all_are_ready': False,
+                'need_stop_game': False,
+                'is_now_game': False,
+                'data': None,
+            }
+
+
         def get_username():
-            for i in range(1, 9999): 
-                if ('user' + str(i)) not in current_users:
+            for i in range(1, 9999):
+                if ('user' + str(i)) not in rooms_date[self.group_name]:
                     self.scope['session']['username'] = ('user' + str(i))
                     self.scope['session'].save()
-                    print('никнейм установился в функции')
                     return ('user' + str(i))
         
-        await self.accept()
-        global all_are_ready
-        all_are_ready = False
-        print('chan_name: ', self.channel_name)
-        print('текущий никнейм:', (self.scope['session'].get('username')))
-        if (self.scope['session'].get('username')) == None or (self.scope['session'].get('username')) in current_users:
+        # global technical_info[self.group_name]['all_are_ready']
+        technical_info[self.group_name]['all_are_ready'] = False
+        if (self.scope['session'].get('username')) == None or (self.scope['session'].get('username')) in rooms_date[self.group_name]:
             get_username()
 
-        current_users[(self.scope['session'].get('username'))] = {
+        rooms_date[self.group_name][(self.scope['session'].get('username'))] = {
             'status': 'not_ready',
             'channel_name': self.channel_name,
             'guess_word': 'no',
             'points': 0,
             'was_leader': False
         }
-        print(current_users)
+
+
+        # rooms_date[self.group_name]['techical_info'] = {
+        #     'test': 1,
+        #     'test_2': 2
+        # }
+
+        # rooms_date[self.group_name][(self.scope['session'].get('username'))] = {
+        #     'status': 'not_ready',
+        #     'channel_name': self.channel_name,
+        #     'guess_word': 'no',
+        #     'points': 0,
+        #     'was_leader': False
+        # }
+
         
+        # rooms_date[self.group_name].update(rooms_date[self.group_name]) 
+        print(rooms_date)
+        # print(technical_info)
+        # print('11: ', len(rooms_date['room_0']))
+        # print('11: ', len(rooms_date[next(reversed(rooms_date))]))
+
         await self.send(text_data=json.dumps({
                 'type': 'set_username',
                 'username': self.scope['session'].get('username')
@@ -190,9 +226,7 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                 self.group_name,
                 {
                     'type': 'add_new_user',
-                    'current_users': current_users,
-                    # 'username': self.scope['session'].get('username'),
-                    # 'points': current_users[self.scope['session'].get('username')]['points']
+                    'current_users': rooms_date[self.group_name],
                 }
             )
 
@@ -203,29 +237,32 @@ class DrawingConsumer(AsyncWebsocketConsumer):
             self.group_name,
             self.channel_name
         )
-        del current_users[self.scope['session'].get('username')]
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                'type': 'del_current_user',
-                'username': self.scope['session'].get('username'),
-            }
-        )
-        print(current_users)
-        if len(current_users) < 2:
-            if len(current_users) == 1:
-                for was_leader in current_users.values():
-                    was_leader['was_leader'] = False
-            stop_event.set()
+        del rooms_date[self.group_name][self.scope['session'].get('username')]
+        if len(rooms_date[self.group_name]) == 0:
+            del rooms_date[self.group_name]
         else:
-            await self.handle_game_start()
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    'type': 'del_current_user',
+                    'username': self.scope['session'].get('username'),
+                }
+            )
+            if len(rooms_date[self.group_name]) < 2:
+                if len(rooms_date[self.group_name]) == 1:
+                    for was_leader in rooms_date[self.group_name].values():
+                        was_leader['was_leader'] = False
+                technical_info[self.group_name]['stop_event'].set()
+            else:
+                await self.handle_game_start()
+        print(rooms_date)
 
 
     # Получаем сообщение от клиента
     async def receive(self, text_data):
-        global data
-        data = json.loads(text_data)
-        type = data['type']
+        # global technical_info[self.group_name]['data']
+        technical_info[self.group_name]['data'] = json.loads(text_data)
+        type = technical_info[self.group_name]['data']['type']
 
         if type == 'clear':
             await self.channel_layer.group_send(self.group_name, {
@@ -233,8 +270,8 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                 'msg_type': 'clear'
             })
         elif type == 'draw':   
-            x = data['x']
-            y = data['y']
+            x = technical_info[self.group_name]['data']['x']
+            y = technical_info[self.group_name]['data']['y']
             await self.channel_layer.group_send(self.group_name, {
                 'type': 'broadcast_message',
                 'x': x,
@@ -242,8 +279,8 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                 'msg_type': 'draw'
             })
         elif type == 'start':   
-            x = data['x']
-            y = data['y']
+            x = technical_info[self.group_name]['data']['x']
+            y = technical_info[self.group_name]['data']['y']
             await self.channel_layer.group_send(self.group_name, {
                 'type': 'broadcast_message',
                 'x': x,
@@ -253,34 +290,53 @@ class DrawingConsumer(AsyncWebsocketConsumer):
         elif type == 'change_drawing_tool':   
             await self.channel_layer.group_send(self.group_name, {
                 'type': 'change_drawing_tool',
-                'drawing_tool': data['drawing_tool']
+                'drawing_tool': technical_info[self.group_name]['data']['drawing_tool']
             })
         
         elif type == 'save_color_canvas':
-            print(data['color'])
-            await self.save_canvas_color(data['color'])
+            await self.save_canvas_color(technical_info[self.group_name]['data']['color'])
+        elif type == 'change_brush_color':
+            await self.save_brush_color(technical_info[self.group_name]['data']['color'])
+            await self.channel_layer.group_send(self.group_name, {
+                'type': 'change_brush_color',
+                'color': technical_info[self.group_name]['data']['color']
+            })
+        elif type == 'set_brush_color_for_all':
+            await self.channel_layer.group_send(self.group_name, {
+                'type': 'set_brush_color_for_all',
+                'color': technical_info[self.group_name]['data']['color']
+            })
+        elif type == 'set_brush_width':
+            await self.save_brush_width(technical_info[self.group_name]['data']['width'])
+            await self.channel_layer.group_send(self.group_name, {
+                'type': 'set_brush_width',
+                'width': technical_info[self.group_name]['data']['width']
+            })
+        elif type == 'move_back':
+            await self.channel_layer.group_send(self.group_name, {
+                'type': 'move_back',
+                'last_action': technical_info[self.group_name]['data']['last_action']
+            })
 
         elif type == 'change_username':
-            message = data['message']
+            message = technical_info[self.group_name]['data']['message']
             old_username = self.scope['session'].get('username')
-            print('old_username', old_username)
             await self.change_username_in_session(message)
-            current_users[self.scope['session'].get('username')] = current_users.pop(old_username)
-            print(current_users)
+            rooms_date[self.group_name][self.scope['session'].get('username')] = rooms_date[self.group_name].pop(old_username)
 
             await self.channel_layer.group_send(
                 self.group_name,
                 {
                     'type': 'add_new_user',
-                    'current_users': current_users,
+                    'current_users': rooms_date[self.group_name],
                 }
             )
         elif type == 'send_message':
-            message = data['message']
+            message = technical_info[self.group_name]['data']['message']
             username = self.scope['session'].get('username')
-            global word_for_guessing
-            if message.lower().strip() == word_for_guessing:
-                current_users[username]['guess_word'] = 'yes'
+            # global technical_info[self.group_name]['word_for_guessing']
+            if message.lower().strip() == technical_info[self.group_name]['word_for_guessing']:
+                rooms_date[self.group_name][username]['guess_word'] = 'yes'
             await self.channel_layer.group_send(
                 self.group_name,
                 {
@@ -288,96 +344,93 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                     'message': message,
                     'message_type': type,
                     'username': username,
-                    'guess_word': current_users[(self.scope['session'].get('username'))]['guess_word']
+                    'guess_word': rooms_date[self.group_name][(self.scope['session'].get('username'))]['guess_word']
                 }
             )
-            if message.lower().strip() == word_for_guessing:
-                await self.channel_layer.send(current_users[username]['channel_name'], {
+            if message.lower().strip() == technical_info[self.group_name]['word_for_guessing']:
+                await self.channel_layer.send(rooms_date[self.group_name][username]['channel_name'], {
                     'type': 'user_guessed_word',
                     'word': message,
                     'is_leader': False
                 })
-                await self.channel_layer.send(current_users[leader]['channel_name'], {
+                await self.channel_layer.send(rooms_date[self.group_name][technical_info[self.group_name]['leader'] ]['channel_name'], {
                     'type': 'user_guessed_word',
                     'word': message,
                     'is_leader': True
                 })
-                print('слово угадано')
-                current_users[username]['points'] += 1
+                rooms_date[self.group_name][username]['points'] += 1
                 await self.channel_layer.group_send(
                     self.group_name,
                         {
                             'type': 'add_points',
                             'username': username,
-                            'points': current_users[username]['points']
+                            'points': rooms_date[self.group_name][username]['points']
                         }
                     )   
-                print(current_users)
-                if sum(guess_word['guess_word'] == 'yes' for guess_word in current_users.values()) == len(current_users) - 1:
-                    stop_event.set()
+                if sum(guess_word['guess_word'] == 'yes' for guess_word in rooms_date[self.group_name].values()) == len(rooms_date[self.group_name]) - 1:
+                    technical_info[self.group_name]['stop_event'].set()
                 
 
         elif type == 'are_ready':
             await self.handle_game_start()
 
         elif type == 'leader_choosed_word':
-            word_for_guessing = data['word']
-            stop_event.set()
-            print('Таймер остановлен лидером')
+            technical_info[self.group_name]['word_for_guessing'] = technical_info[self.group_name]['data']['word']
+            technical_info[self.group_name]['stop_event'].set()
 
         elif type == 'presenter_choosed_word':
-            word_for_guessing = data['word']
+            technical_info[self.group_name]['word_for_guessing'] = technical_info[self.group_name]['data']['word']
             await self.channel_layer.group_send(
                 self.group_name,
                 {
                     'type': 'guess_word',
-                    'word': data['word']
+                    'word': technical_info[self.group_name]['data']['word']
                 }
             )
 
     async def handle_game_start(self):
         try:
-            if data['skip_send_ready'] == 'no':
+            if technical_info[self.group_name]['data']['skip_send_ready'] == 'no':
                 username = self.scope['session'].get('username')
-                current_users[username]['status'] = data['are_ready']
-                if current_users[username]['status'] == 'not_ready':
-                    global need_stop_game
-                    need_stop_game = True
+                rooms_date[self.group_name][username]['status'] = technical_info[self.group_name]['data']['are_ready']
+                if rooms_date[self.group_name][username]['status'] == 'not_ready':
+                    # global technical_info[self.group_name]['need_stop_game']
+                    technical_info[self.group_name]['need_stop_game'] = True
                 else:
-                    global all_are_ready
-                    all_are_ready = True
+                    # global technical_info[self.group_name]['all_are_ready']
+                    technical_info[self.group_name]['all_are_ready'] = True
                 await self.channel_layer.group_send(
                     self.group_name,
                     {
                         'type': 'are_ready',
-                        'are_ready': data['are_ready'],
+                        'are_ready': technical_info[self.group_name]['data']['are_ready'],
                         'username': username
                     }
                 )
         except:
             pass
 
-        if all(readiness['status'] == 'ready' for readiness in current_users.values()) and len(current_users) > 1 and is_now_game == False:
-            global word_for_guessing
-            if word_for_guessing != None:
+        if all(readiness['status'] == 'ready' for readiness in rooms_date[self.group_name].values()) and len(rooms_date[self.group_name]) > 1 and technical_info[self.group_name]['is_now_game'] == False:
+            # global technical_info[self.group_name]['word_for_guessing']
+            if technical_info[self.group_name]['word_for_guessing'] != None:
                 await self.channel_layer.group_send(
                     self.group_name,
                     {
                         'type': 'change_status_label',
                         'message_status': 'Ведущий выбирает слово',
-                        'message_status_2': 'Угадываемое слово: ' + word_for_guessing,
+                        'message_status_2': 'Угадываемое слово: ' + technical_info[self.group_name]['word_for_guessing'],
                     }
                 )
-            for guess_word_status in current_users.values():
+            for guess_word_status in rooms_date[self.group_name].values():
                 guess_word_status['guess_word'] = 'no'
-            word_for_guessing = None
+            technical_info[self.group_name]['word_for_guessing'] = None
         
-            all_are_ready = True
-            need_stop_game = False
+            technical_info[self.group_name]['all_are_ready'] = True
+            technical_info[self.group_name]['need_stop_game'] = False
             time_left_before_start = 5
             async def waiting_before_start():
-                global is_now_game
-                is_now_game = True
+                # global technical_info[self.group_name]['is_now_game']
+                technical_info[self.group_name]['is_now_game'] = True
                 nonlocal time_left_before_start
                 while time_left_before_start > 0:
                     await self.channel_layer.group_send(
@@ -389,7 +442,7 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                     )
                     await asyncio.sleep(1)
                     time_left_before_start -= 1
-                    if not all_are_ready:
+                    if not technical_info[self.group_name]['all_are_ready']:
                         await self.channel_layer.group_send(
                             self.group_name,
                             {
@@ -398,38 +451,34 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                                 'message_status_2': 'Ведущий:'
                             }
                         )
-                        is_now_game = False   
+                        technical_info[self.group_name]['is_now_game'] = False   
                         break
-                global leader
-                print(leader)
-                leader = None
-                # for guess_word_status in current_users.values():
-                #     guess_word_status['guess_word'] = 'no'
-                if not leader and all_are_ready:
-                    print('начало игры')
+                # global technical_info[self.group_name]['leader'] 
+                technical_info[self.group_name]['leader']  = None
+                if not technical_info[self.group_name]['leader'] and technical_info[self.group_name]['all_are_ready']:
                     possible_leaders = []
-                    if all(was_leader['was_leader'] == True for was_leader in current_users.values()):
-                        for was_leader in current_users.values():
+                    if all(was_leader['was_leader'] == True for was_leader in rooms_date[self.group_name].values()):
+                        for was_leader in rooms_date[self.group_name].values():
                             was_leader['was_leader'] = False
-                    for username, was_leader in current_users.items():
+                    for username, was_leader in rooms_date[self.group_name].items():
                         if not was_leader['was_leader']:
                             possible_leaders.append(username)
-                    leader = random.choice(possible_leaders)
-                    current_users[leader]['was_leader'] = True
-                    # leader = random.choice(list(current_users.keys()))
-                    random_words_for_leader = random.sample(words, 3)
+                    technical_info[self.group_name]['leader']  = random.choice(possible_leaders)
+                    rooms_date[self.group_name][technical_info[self.group_name]['leader'] ]['was_leader'] = True
+                    # technical_info[self.group_name]['leader']  = random.choice(list(rooms_date[self.group_name].keys()))
+                    technical_info[self.group_name]['random_words_for_leader'] = random.sample(words, 3)
                     await self.channel_layer.group_send(
                         self.group_name,
                         {
                             'type': 'change_status_label',
                             'message_status': 'Ведущий выбирает слово',
-                            'message_status_2': 'Ведущий: ' + leader,
+                            'message_status_2': 'Ведущий: ' + technical_info[self.group_name]['leader'] ,
                         }
                     )
                     
-                    await self.channel_layer.send(current_users[leader]['channel_name'], {
+                    await self.channel_layer.send(rooms_date[self.group_name][technical_info[self.group_name]['leader'] ]['channel_name'], {
                         'type': 'send_leader',
-                        'words': random_words_for_leader
+                        'words': technical_info[self.group_name]['random_words_for_leader']
                     })
 
                     
@@ -438,27 +487,24 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                     async def leader_chooses_word_timer():
 
                         nonlocal time_left
-                        print('Старт таймера для выбора слова лидером')
                         
                         # Таймер лидера
                         while time_left > 0:
-                            print('таймер ведущего')
-                            await self.channel_layer.send(current_users[leader]['channel_name'], {
+                            await self.channel_layer.send(rooms_date[self.group_name][technical_info[self.group_name]['leader'] ]['channel_name'], {
                                 'type': 'leader_chooses_word_timer_fs',
                                 'time_left': time_left
                             })
                             await asyncio.sleep(1)
                             time_left -= 1
-                            if stop_event.is_set():
-                                print("Таймер остановлен")
-                                stop_event.clear()
+                            if technical_info[self.group_name]['stop_event'].is_set():
+                                technical_info[self.group_name]['stop_event'].clear()
                                 break
 
-                        global word_for_guessing
-                        if not stop_event.is_set() and word_for_guessing == None:
-                            word_for_guessing = random.choice(random_words_for_leader)
+                        # global technical_info[self.group_name]['word_for_guessing']
+                        if not technical_info[self.group_name]['stop_event'].is_set() and technical_info[self.group_name]['word_for_guessing'] == None:
+                            technical_info[self.group_name]['word_for_guessing'] = random.choice(technical_info[self.group_name]['random_words_for_leader'])
 
-                        await self.channel_layer.send(current_users[leader]['channel_name'], {
+                        await self.channel_layer.send(rooms_date[self.group_name][technical_info[self.group_name]['leader'] ]['channel_name'], {
                             'type': 'show_word_for_leader',
                         })
 
@@ -475,7 +521,6 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                         async def start_game_timer():
                             nonlocal time_left_start_game_timer
                             while time_left_start_game_timer > 0:
-                                print('таймер игры')
                                 await self.channel_layer.group_send(
                                     self.group_name,
                                     {
@@ -485,18 +530,17 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                                 )
                                 await asyncio.sleep(1)
                                 time_left_start_game_timer -= 1
-                                if stop_event.is_set():
-                                    print("Таймер остановлен")
+                                if technical_info[self.group_name]['stop_event'].is_set():
                                     break
 
-                            stop_event.clear()
-                            if leader in current_users and current_users[leader]:
-                                await self.channel_layer.send(current_users[leader]['channel_name'], {
+                            technical_info[self.group_name]['stop_event'].clear()
+                            if technical_info[self.group_name]['leader']  in rooms_date[self.group_name] and rooms_date[self.group_name][technical_info[self.group_name]['leader'] ]:
+                                await self.channel_layer.send(rooms_date[self.group_name][technical_info[self.group_name]['leader'] ]['channel_name'], {
                                     'type': 'clear_leader_tools',
                                 })
-                            global is_now_game
-                            is_now_game = False
-                            if all_are_ready == True and len(current_users) > 1:
+                            # global technical_info[self.group_name]['is_now_game']
+                            technical_info[self.group_name]['is_now_game'] = False
+                            if technical_info[self.group_name]['all_are_ready'] == True and len(rooms_date[self.group_name]) > 1:
                                 await self.handle_game_start()
                             else:
                                 await self.channel_layer.group_send(
@@ -504,21 +548,21 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                                     {
                                         'type': 'change_status_label',
                                         'message_status': 'Статус: ожидание готовности игроков',
-                                        'message_status_2': 'Угадываемое слово: ' + word_for_guessing
+                                        'message_status_2': 'Угадываемое слово: ' + technical_info[self.group_name]['word_for_guessing']
                                     }
                                 )
                             
                                 
                         asyncio.create_task(start_game_timer())
                     
-                    if all_are_ready:
+                    if technical_info[self.group_name]['all_are_ready']:
                         asyncio.create_task(leader_chooses_word_timer())
 
             asyncio.create_task(waiting_before_start())
 
         else:
-            if not all(readiness['status'] == 'ready' for readiness in current_users.values()):
-                all_are_ready = False
+            if not all(readiness['status'] == 'ready' for readiness in rooms_date[self.group_name].values()):
+                technical_info[self.group_name]['all_are_ready'] = False
 
     @database_sync_to_async
     def change_username_in_session(self, username):
@@ -528,8 +572,17 @@ class DrawingConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def save_canvas_color(self, color):
-        # Сохраняем никнейм в HTTP-сессии
         self.scope['session']['color'] = color
+        self.scope['session'].save()
+
+    @database_sync_to_async
+    def save_brush_color(self, color):
+        self.scope['session']['brush_color'] = color
+        self.scope['session'].save()
+
+    @database_sync_to_async
+    def save_brush_width(self, width):
+        self.scope['session']['brush_width'] = width
         self.scope['session'].save()
 
     async def broadcast_message(self, event):
@@ -598,7 +651,7 @@ class DrawingConsumer(AsyncWebsocketConsumer):
     async def guess_word(self, event):
         await self.send(text_data=json.dumps({
             'type': 'guess_word',
-            'word': word_for_guessing
+            'word': technical_info[self.group_name]['word_for_guessing']
         }))
 
     async def user_guessed_word(self, event):
@@ -617,7 +670,7 @@ class DrawingConsumer(AsyncWebsocketConsumer):
     async def show_word_for_leader(self, event):
         await self.send(text_data=json.dumps({
             'type': 'show_word_for_leader',
-            'word_for_guessing': word_for_guessing
+            'word_for_guessing': technical_info[self.group_name]['word_for_guessing']
         }))
 
     async def start_game_timer(self, event):
@@ -642,5 +695,29 @@ class DrawingConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'change_drawing_tool',
             'drawing_tool': event['drawing_tool']
+        }))
+
+    async def change_brush_color(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'change_brush_color',
+            'color': event['color']
+        }))
+
+    async def set_brush_color_for_all(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'set_brush_color_for_all',
+            'color': event['color']
+        }))
+
+    async def set_brush_width(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'set_brush_width',
+            'width': event['width']
+        }))
+
+    async def move_back(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'move_back',
+            'last_action': event['last_action']
         }))
         

@@ -8,7 +8,8 @@ import json
 def home(request):
     username = request.session.get('username', 'no_name')
     print(username)
-    return render(request, 'home.html', {'username': username})
+    return render(request, 'start_menu.html', {'username': username})
+    # return render(request, 'home.html', {'username': username})
 
 
 @csrf_exempt
@@ -16,7 +17,6 @@ def home(request):
 def change_username(request):
     data = json.loads(request.body)
     username = data.get('username')
-    print('имя: ', username)
     request.session['username'] = username
     return JsonResponse({}, status=200)
     

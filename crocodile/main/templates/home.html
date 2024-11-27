@@ -2,18 +2,31 @@
 {% load static %}
 {% block content %}
     <div class="main">
+        <!-- <audio autoplay controls loop class="audio" src="static/images/123.mp3">123</audio> -->
+        <!-- <button class="del">Назад</button> -->
         <div class="current_users">
             <span>Игроки:</span>
         </div>
         <div class="game_timer">Статус: ожидание готовности игроков</div>
         <!-- <div class="timer_choose_word">10</div> -->
-        <!-- <div class="word_for_presenter">Ваше слово: XXXXX</div> -->
+        <!-- <div class="word_for_presenter">Ваше слово: КРОКОДИЛ</div> -->
         <!-- <button class="clear_button">Очистить</button> -->
         <!-- <form><input type="text" id="color" name="color" value="#123456" /></form>
         <div id="colorpicker"></div>
          -->
         <div class="canvas_and_chat_wr">
-            <canvas id="drawingCanvas" width="850" height="450"></canvas>
+            <div style="position: relative;" class="canvas_words_pr_wr">
+                <canvas id="drawingCanvas" width="850" height="450"></canvas>
+                <!-- <div class="words_for_presenter">
+                    <div class="choose_word">Выберите слово:</div>
+                    <div class="selectable_word_wr">
+                        <button class="selectable_word">Слово 1</button>
+                        <button class="selectable_word">Слово 2</button>
+                        <button class="selectable_word">Слово 3</button>
+                    </div>
+                    <div class="timer_choose_word">10</div>
+                </div> -->
+            </div>
             <div class="chat_wr">
                 <div class="chat_watch">
                     <!-- <div class="chat_msg_wr">
@@ -27,6 +40,7 @@
                     <button class="btn_send_mes">Отправить</button>
                 </div>
                 <div class="label_leader_and_what_was_word">Ведущий:</div>
+                <!-- <input type="range" min="1" max="10"> -->
                 <!-- <button class="eraser leader_tool">Стёрка</button> -->
                 <!-- <button class="clear_button leader_tool">Очистить</button> -->
             </div>

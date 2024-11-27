@@ -49,7 +49,7 @@
   background: url('/static/images/marker.png') no-repeat;
 }
 
-#color{
+#color, #color_brush{
   display: none;
 }
 

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block header %}
+<div class="start_menu_wr">
+    <div class="start_menu_welcome">
+        Добро пожаловать в игру 'Крокодил'
+    </div>
+    <input class="SM_username_input" placeholder="Введите ваш никнейм"></input>
+    <div class="room_choose">
+        <button class="room_button">
+            Начать игру
+        </button>
+        <button class="room_button">
+            Создать комнату
+        </button>
+        <button class="room_button">
+            Присоединиться к комнате
+        </button>
+    </div>
+</div>
+{% endblock %}

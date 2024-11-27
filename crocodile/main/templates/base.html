@@ -6,18 +6,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/static/images/icon.png">
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
     <!-- <meta name="viewport" content="width=1224"> -->
     <meta name="viewport" content="width=1300">
-    <title>{% block title %} Главная {% endblock %}</title>
+    <title>{% block title %} Крокодил {% endblock %}</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <link rel="stylesheet" href="{% static 'farbtastic.css' %}">
-    <script src="{% static 'script.js' %}" defer></script>
     <script src="{% static 'jquery-3.7.1.min.js' %}" defer></script>
     <script src="{% static 'farbtastic.js' %}" defer></script>
+    <script src="{% static 'script.js' %}" defer></script>
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 </head>  
 <body>
+    {% block header %}
     <div class="header">
         <a href="/" class="main_page">
             Главная
@@ -31,7 +33,11 @@
             <span>Ваш статус:&nbsp;</span>
             <button class="ready_button">Не готов</button>
         </div>
-        <button class="user_tools" data-color='{{ request.session.color }}'>Кастомизация
+        <button style="display: none;" class="user_tools"
+            data-color='{{ request.session.color }}'
+            data-brush-color='{{ request.session.brush_color }}'
+            data-brush-width='{{ request.session.brush_width }}'>
+            Кастомизация
             <!-- <div class="canvas_BC_choose">
                 <div class="canvas_BC_choose_label">Выбор цвета доски</div>
                 <input type="text" id="color" name="color" value="#123456" />
@@ -42,6 +48,7 @@
             Добро пожаловать, {{ request.session.username }}
         </div>
     </div>
+    {% endblock %}
     {% block content %}
     {% endblock %}
 </body>

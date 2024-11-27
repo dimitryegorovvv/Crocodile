@@ -83,8 +83,8 @@
 //     };
 // });
 
-const url = 'wss://' + 'c7fe-178-120-2-116.ngrok-free.app';
-// const url = 'ws://' + '127.0.0.1:8001';
+// const url = 'wss://' + 'efb8-178-120-5-221.ngrok-free.app';
+const url = 'ws://' + '127.0.0.1:8001';
 
 document.addEventListener('DOMContentLoaded', function() {    
     const socket = new WebSocket(url + '/ws/draw/');
@@ -103,18 +103,73 @@ document.addEventListener('DOMContentLoaded', function() {
     const gameTimerAndGameStatus = document.getElementsByClassName('game_timer')[0];
     const userTools = document.getElementsByClassName('user_tools')[0];
     var currentCanvasColor = 'not_set';
-    var standartCanvasColor = '#83207e';
+    var standartCanvasColor = '#000000';
+    var standartBruhColor = '#f1f1f1';
+    var standartBrushWidth = 2.5;
     var word;
     let chooseWordTimer;
     let gameTimer;
     let drawing = false;
+    var actions = [];
     canvas.style.pointerEvents = 'none';
     if (userTools.getAttribute('data-color') == ''){
         canvas.style.backgroundColor = standartCanvasColor;
     } else {
         canvas.style.backgroundColor = userTools.getAttribute('data-color');
     }
-    ctx.strokeStyle = '#f1f1f1';
+    userTools.setAttribute('data-brush-color', standartBruhColor);
+    if (userTools.getAttribute('data-brush-color') == ''){
+        ctx.strokeStyle = standartBruhColor;
+    } else {
+        ctx.strokeStyle = userTools.getAttribute('data-brush-color');
+    }
+``
+
+
+    function saveState() {
+        actions.push(canvas.toDataURL());
+        const jsonString = JSON.stringify(actions);
+
+        // Получаем длину строки в байтах
+        const sizeInBytes = new Blob([jsonString]).size;
+
+        // Преобразуем в килобайты
+        const sizeInKB = sizeInBytes / 1024;
+
+        console.log(`Размер массива: ${sizeInKB.toFixed(2)} KB`);
+        console.log(actions);
+        if (actions.length >= 10) {
+            actions.shift(); 
+        }
+    }
+    
+    // Восстановление последнего состояния
+    // function undo() {
+    //     if (actions.length > 0) {
+    //         const lastAction = actions.pop();
+    //         const img = new Image();
+    //         img.src = lastAction;
+    //         img.onload = () => {
+    //             ctx.clearRect(0, 0, canvas.width, canvas.height); // Очистка canvas
+    //             ctx.drawImage(img, 0, 0); // Отрисовка предыдущего состояния
+    //         };
+    //     }
+    // }
+
+    // presenter_choosed_word('1');
+
+    // if (userTools.getAttribute('data-brush-width') == ''){
+    //     ctx.lineWidth = standartBrushWidth;
+    // } else {
+    //     ctx.lineWidth = userTools.getAttribute('data-brush-width');
+    // }
+    // ctx.strokeStyle = '#f1f1f1';
+    // ctx.lineWidth = 100;
+
+    // window.addEventListener('click', () => {
+    //     const music = document.getElementsByClassName('audio')[0];
+    //     music.play().catch(error => console.log('Автовоспроизведение заблокировано:', error));
+    // });
 
 
     userTools.addEventListener('click', function (event) {
@@ -205,11 +260,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Начало рисования
     function startDrawing(event) {
+        saveState();
         drawing = true;
         let x = event.offsetX || getTouchPos(event).x;
         let y = event.offsetY || getTouchPos(event).y;
 
-        // Начинаем новый путь
         // ctx.beginPath();
         // ctx.moveTo(x, y);
         // ctx.beginPath();
@@ -306,26 +361,101 @@ document.addEventListener('DOMContentLoaded', function() {
             // });
         }
         if (event.target && event.target.classList.contains('change_brush_color')) {
-            
-        };
-
+            if (!document.getElementsByClassName('brush_color_choose')[0]) {
+                let brushColorChoose = document.createElement('div');
+                brushColorChoose.classList.add('brush_color_choose');
         
+                let colorPickerBrush = document.createElement('div');
+                colorPickerBrush.id = 'colorpicker_brush';
+        
+                let colorPickerInputBrush = document.createElement('input');
+                colorPickerInputBrush.type = 'text';
+                colorPickerInputBrush.id = 'color_brush';
+                colorPickerInputBrush.name = 'color_brush';
+                colorPickerInputBrush.value = '#123456';
+        
+                brushColorChoose.appendChild(colorPickerInputBrush);
+                brushColorChoose.appendChild(colorPickerBrush);
+        
+                let changebrushColor = document.getElementsByClassName('change_brush_color')[0];
+                changebrushColor.appendChild(brushColorChoose);
+
+                // farbtastic.setColor(userTools.getAttribute('data-color'));
+                
+                let farbtastic_for_brush = $.farbtastic('#colorpicker_brush').linkTo(function(color) {
+                    userTools.setAttribute('data-brush-color', color);
+                    socket.send(JSON.stringify({
+                        'type': 'change_brush_color',
+                        'color': color
+                    }));
+                });
+                // if userTools.getAttribute('data-brush-color')
+                if (userTools.getAttribute('data-brush-color') == ''){
+                    farbtastic_for_brush.setColor(standartBruhColor);
+                } else {
+                    farbtastic_for_brush.setColor(userTools.getAttribute('data-brush-color'));
+                }
+                // farbtastic_for_brush.setColor(userTools.getAttribute('data-brush-color'));
+                
+            } else {
+                let brushColorChoose = document.getElementsByClassName('brush_color_choose')[0];
+                brushColorChoose.remove();
+                
+            }
+        }
+        if (event.target && event.target.classList.contains('button_back')) {
+            if (actions.length != 0){
+                socket.send(JSON.stringify({
+                    'type': 'move_back',
+                    'last_action': actions.pop(),
+                }));
+            }
+        }
     });
+
+    chatWr.addEventListener('input', function(event){
+        if (event.target && event.target.classList.contains('brush_width')) {
+            const brushWidth = document.getElementsByClassName('brush_width')[0];
+            userTools.setAttribute('data-brush-width', brushWidth.value);
+            socket.send(JSON.stringify({
+                'type': 'set_brush_width',
+                'width': brushWidth.value
+            }));
+            console.log('устанавливаем ширину: ', brushWidth.value);
+        }
+    });
+
 
     function presenter_choosed_word(choosedWord) {
         const wordsForPresenter = document.getElementsByClassName('words_for_presenter')[0];
         wordsForPresenter.remove();
+
         
         const wordForPresenter = document.createElement("div");
         wordForPresenter.classList.add('word_for_presenter');
         wordForPresenter.textContent = 'Ваше слово: ' + choosedWord.toUpperCase();
-
-        currentUsers.insertAdjacentElement('afterend', wordForPresenter);
-        canvas.style.pointerEvents = 'auto';
-
+        gameTimerAndGameStatus.insertAdjacentElement('afterend', wordForPresenter);
+        let brushColor;
+        if (userTools.getAttribute('data-brush-color') == ''){
+            brushColor = standartBruhColor;
+        } else {
+            brushColor = userTools.getAttribute('data-brush-color');
+        }
+        socket.send(JSON.stringify({
+            'type': 'set_brush_color_for_all',
+            'color': brushColor
+        }));
+        
         let eraser = document.createElement('button');
         eraser.classList.add('eraser', 'leader_tool');
         eraser.textContent = 'Стёрка';
+        
+        socket.send(JSON.stringify({
+            'type': 'change_drawing_tool',
+            'drawing_tool': 'brush'
+        }));
+        
+        canvas.style.pointerEvents = 'auto';
 
         let changeBrushColor = document.createElement('button');
         changeBrushColor.classList.add('change_brush_color', 'leader_tool');
@@ -335,15 +465,52 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonClearCanvas.classList.add('clear_button', 'leader_tool');
         buttonClearCanvas.textContent = 'Очистить';
 
+
+        // const buttonClearCanvas = document.createElement('button');
+        // buttonClearCanvas.classList.add('clear_button', 'leader_tool');
+        // buttonClearCanvas.textContent = 'Очистить';
+
+        let brushWidthSend;
+        if (userTools.getAttribute('data-brush-width') == ''){
+            brushWidthSend = standartBrushWidth;
+        } else {
+            brushWidthSend = parseFloat(userTools.getAttribute('data-brush-width'));
+        }
+
+        const brushWidth = document.createElement('input');
+        brushWidth.classList.add('brush_width', 'leader_tool');
+        brushWidth.type = 'range';
+        brushWidth.min = '1';
+        brushWidth.max = '10';
+        brushWidth.step = '0.1';
+        brushWidth.value = brushWidthSend;
+
+        const buttonBack = document.createElement('button');
+        buttonBack.classList.add('button_back');
+
+        const imgButtonBack = document.createElement('img');
+        imgButtonBack.classList.add('img_button_back');
+        imgButtonBack.src = '/static/images/back.png';
+        imgButtonBack.alt = 'Назад';
+        buttonBack.appendChild(imgButtonBack);
+
+        const chatSendMessage = document.getElementsByClassName('chat_write_and_btn_send')[0];
+        chatSendMessage.style.display = 'none';
+        labelLeaderAndWhatWasWord.style.display = 'none';
+
         labelLeaderAndWhatWasWord.insertAdjacentElement('afterend', eraser);
         eraser.insertAdjacentElement('afterend', changeBrushColor);
         changeBrushColor.insertAdjacentElement('afterend', buttonClearCanvas);
+        buttonClearCanvas.insertAdjacentElement('afterend', brushWidth);
+        brushWidth.insertAdjacentElement('afterend', buttonBack);
 
         // socket.send(JSON.stringify({
         //         'type': 'presenter_choosed_word',
         //         'word': choosedWord
         //     }));
     }
+
+    
 
     // function startTimerChooseWord(words) {
     //     let timeLeft = 9;
@@ -428,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     btnConfUsername.addEventListener('click', function(){
-        if (inpUsername.value.indexOf(' ') != -1 || inpUsername.value.length > 15 || inpUsername.value.length == ''){
+        if (inpUsername.value.indexOf(' ') != -1 || inpUsername.value.length > 20 || inpUsername.value.length == ''){
             let usernameIsIncorrect = document.createElement('div');
             usernameIsIncorrect.classList.add('username_is_incorrect');
             usernameIsIncorrect.textContent = 'Допускается не более 15 символов и отсутствие пробелов';
@@ -554,15 +721,41 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.stroke();
         } else if (data.type == 'clear') {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-        } else if (data.type == 'change_drawing_tool') {
+        } else if (data.type == 'change_drawing_tool'){
             if (data.drawing_tool == 'eraser'){
                 console.log('сейчас стёрка');
                 ctx.lineWidth = 15;
                 ctx.globalCompositeOperation = "destination-out";
             } else if (data.drawing_tool == 'brush') {
-                console.log('сейчас кисть');
-                ctx.lineWidth = 1;
+                let brushWidthSend;
+                if (userTools.getAttribute('data-brush-width') == ''){
+                    brushWidthSend = standartBrushWidth;
+                } else {
+                    brushWidthSend = parseFloat(userTools.getAttribute('data-brush-width'));
+                }
+                console.log('отправляем ширину: ', brushWidthSend);
+                
+                socket.send(JSON.stringify({
+                    'type': 'set_brush_width',
+                    'width': brushWidthSend
+                }));
                 ctx.globalCompositeOperation = "source-over";
+            }
+        } else if (data.type == 'change_brush_color') {
+            ctx.strokeStyle = data.color;
+        } else if (data.type == 'set_brush_color_for_all') {
+            ctx.strokeStyle = data.color;
+        } else if (data.type == 'set_brush_width') {
+            console.log('принимаем ширину: ', data.width);
+            ctx.lineWidth = Number(data.width);
+            console.log('теперь ширина: ', ctx.lineWidth);
+        } else if (data.type == 'move_back') {
+            console.log('back', data.last_action);
+            const img = new Image();
+            img.src = data.last_action;
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Очистка canvas
+                ctx.drawImage(img, 0, 0); // Отрисовка предыдущего 
             }
         } 
 
@@ -578,9 +771,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const word_for_presenter = document.getElementsByClassName('word_for_presenter')[0];
             const clear_button = document.getElementsByClassName('clear_button')[0];
             const eraser = document.getElementsByClassName('eraser')[0];
+            const changeBrushColor  = document.getElementsByClassName('change_brush_color')[0];
+            const brushWidth  = document.getElementsByClassName('brush_width')[0];
+            const buttonBack  = document.getElementsByClassName('button_back')[0];
+            const chatSendMessage = document.getElementsByClassName('chat_write_and_btn_send')[0];
             word_for_presenter.remove();
             clear_button.remove();
             eraser.remove();
+            changeBrushColor.remove();
+            brushWidth.remove();
+            buttonBack.remove();
+            chatSendMessage.style.display = 'flex';
+            labelLeaderAndWhatWasWord.style.display = 'block';
         } else if (data.type == 'send_message'){
             var chatMsgWr = document.createElement('div');
             chatMsgWr.classList.add('chat_msg_wr');
@@ -692,7 +894,7 @@ document.addEventListener('DOMContentLoaded', function() {
             wordsForPresenter.appendChild(chooseWord);
             wordsForPresenter.appendChild(selectableWordWr);
             wordsForPresenter.appendChild(timerChooseWord);
-            mainDiv.appendChild(wordsForPresenter);
+            canvas.insertAdjacentElement('afterend', wordsForPresenter);
 
             // startTimerChooseWord(data.words);
         // } else if (data.type == 'guess_word') {
@@ -717,7 +919,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 chatInput.disabled = true;
             }
         } else if (data.type == 'change_status_label'){
-            gameTimerAndGameStatus.textContent = data.message_status
+            gameTimerAndGameStatus.textContent = data.message_status;
             labelLeaderAndWhatWasWord.textContent = data.message_status_2;
             chatInput.disabled = false;
             chatInput.placeholder = 'Угадайте слово';
