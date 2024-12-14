@@ -1,92 +1,6 @@
+const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
 
-// document.addEventListener('DOMContentLoaded', function() {
-//     const canvas = document.getElementById('drawingCanvas');
-//     const ctx = canvas.getContext('2d');
-//     const socket = new WebSocket('ws://' + url + '/ws/draw/');
-//     let drawing = false;
-    
-//     // Функция для получения координат касания на мобильных устройствах
-//     function getTouchPos(event) {
-//         const rect = canvas.getBoundingClientRect();
-//         return {
-//             x: event.touches[0].clientX - rect.left,
-//             y: event.touches[0].clientY - rect.top
-//         };
-//     }
-
-//     // Начало рисования
-//     function startDrawing(event) {
-//         drawing = true;
-//         let x = event.offsetX || getTouchPos(event).x;
-//         let y = event.offsetY || getTouchPos(event).y;
-
-//         // Начинаем новый путь
-//         // ctx.beginPath();
-//         // ctx.moveTo(x, y);
-        
-//         // Отправляем начальные координаты на сервер
-//         socket.send(JSON.stringify({
-//             'x': x,
-//             'y': y,
-//             'type': 'start'  // Указываем тип сообщения
-//         }));
-//     }
-
-    
-
-//     // Рисование
-//     function draw(event) {
-//         if (drawing) {
-//             let x = event.offsetX || getTouchPos(event).x;
-//             let y = event.offsetY || getTouchPos(event).y;
-
-//             // Отправляем координаты на сервер
-//             socket.send(JSON.stringify({
-//                 'x': x,
-//                 'y': y,
-//                 'type': 'draw'  // Указываем тип сообщения
-//             }));
-//         }
-//     }
-
-//     // Остановка рисования
-//     function stopDrawing() {
-//         drawing = false;
-//     }
-
-//     // События для мыши
-//     canvas.addEventListener('mousedown', startDrawing);
-//     canvas.addEventListener('mousemove', draw);
-//     canvas.addEventListener('mouseup', stopDrawing);
-//     canvas.addEventListener('mouseleave', stopDrawing);
-
-//     // События для касаний на мобильных устройствах
-//     canvas.addEventListener('touchstart', startDrawing);
-//     canvas.addEventListener('touchmove', draw);
-//     canvas.addEventListener('touchend', stopDrawing);
-
-//     // Получаем данные от сервера
-//     socket.onmessage = function(event) {
-//         const data = JSON.parse(event.data);
-        
-//         if (data.type === 'start') {
-//             // Начинаем новый путь
-//             ctx.beginPath();
-//             ctx.moveTo(data.x, data.y);
-//         } else if (data.type === 'draw') {
-//             // Продолжаем рисовать
-//             ctx.lineTo(data.x, data.y);
-//             ctx.stroke();
-//         } else if (data.type === 'clear') {
-//             ctx.clearRect(0, 0, canvas.width, canvas.height);
-//         }
-//     };
-// });
-
-// const url = 'wss://' + 'efb8-178-120-5-221.ngrok-free.app';
-const url = 'ws://' + '127.0.0.1:8001';
-
-document.addEventListener('DOMContentLoaded', function() {    
+// document.addEventListener('DOMContentLoaded', function() {    
     const socket = new WebSocket(url + '/ws/draw/');
     const chatInput = document.getElementsByClassName('chat_write')[0];
     const btnSend = document.getElementsByClassName('btn_send_mes')[0];
@@ -102,6 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const labelLeaderAndWhatWasWord = document.getElementsByClassName('label_leader_and_what_was_word')[0];
     const gameTimerAndGameStatus = document.getElementsByClassName('game_timer')[0];
     const userTools = document.getElementsByClassName('user_tools')[0];
+    const whatWasWordWr = document.getElementsByClassName('what_was_word_wr')[0];
+    const whatWasWord = document.getElementsByClassName('what_was_word')[0];
+    const timerBeforeNewGame = document.getElementsByClassName('timer_before_new_game')[0];
+    const nicknameLabel = document.getElementsByClassName('nickname')[0];
     var currentCanvasColor = 'not_set';
     var standartCanvasColor = '#000000';
     var standartBruhColor = '#f1f1f1';
@@ -123,21 +41,55 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         ctx.strokeStyle = userTools.getAttribute('data-brush-color');
     }
-``
+
+    // const words = ['Лошадь', 'Собака', 'Луна']
+
+    // socket.onclose = function (event) {
+    //     alert('ошибка');
+    //     console.log(event);
+        
+    // }
+    
+    // socket.onerror = (error) => console.error('Ошибка WebSocket:', error);
+    // var wordsForPresenter = document.createElement('div');
+    // wordsForPresenter.classList.add('words_for_presenter');
+
+    // var chooseWord = document.createElement('div');
+    // chooseWord.classList.add('choose_word');
+    // chooseWord.textContent = 'Выберите слово:';
+
+    // var selectableWordWr = document.createElement('div');
+    // selectableWordWr.classList.add('selectable_word_wr');
+
+    // words.forEach(element => {
+    //     var selectableWord = document.createElement('button');
+    //     selectableWord.classList.add('selectable_word');
+    //     selectableWord.textContent = element;
+    //     selectableWordWr.appendChild(selectableWord);
+    // });
+
+    // var timerChooseWord = document.createElement('div');
+    // timerChooseWord.textContent = '10';
+    // timerChooseWord.classList.add('timer_choose_word');
+
+    // wordsForPresenter.appendChild(chooseWord);
+    // wordsForPresenter.appendChild(selectableWordWr);
+    // wordsForPresenter.appendChild(timerChooseWord);
+    // canvas.insertAdjacentElement('afterend', wordsForPresenter);
 
 
     function saveState() {
         actions.push(canvas.toDataURL());
-        const jsonString = JSON.stringify(actions);
+        // const jsonString = JSON.stringify(actions);
 
-        // Получаем длину строки в байтах
-        const sizeInBytes = new Blob([jsonString]).size;
+        // // Получаем длину строки в байтах
+        // const sizeInBytes = new Blob([jsonString]).size;
 
-        // Преобразуем в килобайты
-        const sizeInKB = sizeInBytes / 1024;
+        // // Преобразуем в килобайты
+        // const sizeInKB = sizeInBytes / 1024;
 
-        console.log(`Размер массива: ${sizeInKB.toFixed(2)} KB`);
-        console.log(actions);
+        // console.log(`Размер массива: ${sizeInKB.toFixed(2)} KB`);
+        // console.log(actions);
         if (actions.length >= 10) {
             actions.shift(); 
         }
@@ -425,6 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // presenter_choosed_word('hui')
 
     function presenter_choosed_word(choosedWord) {
         const wordsForPresenter = document.getElementsByClassName('words_for_presenter')[0];
@@ -503,6 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
         changeBrushColor.insertAdjacentElement('afterend', buttonClearCanvas);
         buttonClearCanvas.insertAdjacentElement('afterend', brushWidth);
         brushWidth.insertAdjacentElement('afterend', buttonBack);
+        buttonBack.insertAdjacentElement('afterend', wordForPresenter);
 
         // socket.send(JSON.stringify({
         //         'type': 'presenter_choosed_word',
@@ -595,10 +549,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     btnConfUsername.addEventListener('click', function(){
-        if (inpUsername.value.indexOf(' ') != -1 || inpUsername.value.length > 20 || inpUsername.value.length == ''){
+        if (inpUsername.value.indexOf(' ') != -1 || inpUsername.value.length > 20 || inpUsername.value == ''){
             let usernameIsIncorrect = document.createElement('div');
             usernameIsIncorrect.classList.add('username_is_incorrect');
-            usernameIsIncorrect.textContent = 'Допускается не более 15 символов и отсутствие пробелов';
+            usernameIsIncorrect.textContent = 'Допускается не более 20 символов и отсутствие пробелов';
             usernameIsIncorrect.style.width = `${inpUsername.offsetWidth}px`;
             inpUsername.insertAdjacentElement('afterend', usernameIsIncorrect);
             setTimeout(() => {
@@ -635,8 +589,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({ 'username': inpUsername.value })
                 }).then(response => {
                     if (response.ok) {
-                        let welcomeText = document.getElementsByClassName('welcome_header')[0];
-                        welcomeText.textContent = 'Добро пожаловать, ' + inpUsername.value;
+                        // let welcomeText = document.getElementsByClassName('welcome_header')[0];
+                        nicknameLabel.textContent = inpUsername.value;
                         inpUsername.value = ''; 
                     }
                 });  
@@ -765,6 +719,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (data.type == 'show_word_for_leader'){
             presenter_choosed_word(data.word_for_guessing)
         } else if (data.type == 'start_game_timer'){
+            // whatWasWordWr.style.display = 'block';
+            // timerBeforeNewGame.textContent = data.time_left_start_game_timer + ' сек.';
+            timerBeforeNewGame.textContent = data.time_left_start_game_timer + ' сек.';
             gameTimerAndGameStatus.textContent = data.time_left_start_game_timer + ' сек.';
         } else if (data.type == 'clear_leader_tools'){
             canvas.style.pointerEvents = 'none';
@@ -790,7 +747,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var chatUser = document.createElement('span');
             chatUser.classList.add('chat_user');
             if (data.guess_word == 'yes'){
-                chatUser.style.color = 'green'
+                chatUser.style.color = 'green';
             }
             chatUser.textContent = data.username;
     
@@ -821,6 +778,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     username.remove();
                 }
             });
+            var chatMsgWr = document.createElement('div');
+            chatMsgWr.classList.add('chat_msg_wr');
+    
+            var chatMessage = document.createElement('span');
+            chatMessage.classList.add('official_message');
+            chatMessage.textContent = 'К сожалению, ';
+
+            var username = document.createElement('span');
+            username.classList.add('welcome_chat_username');
+            username.textContent = data.username;
+
+            let label = ' вынужден покинуть нас =(';
+
+            chatMessage.append(username);
+            chatMessage.append(label);
+
+    
+            chatMsgWr.appendChild(chatMessage);
+
+    
+            chatWatch.appendChild(chatMsgWr);
+            chatWatch.scrollTop = chatWatch.scrollHeight;
         } else if (data.type == 'add_new_user'){
             let all_usernames = document.querySelectorAll('.current_user');
             all_usernames.forEach(username => {
@@ -838,9 +817,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentUser.textContent = currentUserKey + ' ';
                 let userPoints = document.createElement('span');
                 userPoints.textContent = data.current_users[currentUserKey]['points'] + ' ';
+                if (currentUser.textContent.trim() == data.leader_nickname) {
+                    let imgIconLeader = document.createElement('img');
+                    imgIconLeader.classList.add('leader_icon');
+                    imgIconLeader.setAttribute('src', '/static/images/leader.png');
+                    currentUser.prepend(imgIconLeader);
+                }
                 currentUsers.appendChild(currentUser);
                 currentUsers.appendChild(userPoints);
             }
+
+            if (data.old_username){
+                var chatMsgWr = document.createElement('div');
+                chatMsgWr.classList.add('chat_msg_wr');
+        
+                var chatMessage = document.createElement('span');
+                chatMessage.classList.add('official_message');
+                chatMessage.textContent = data.old_username;
+
+                var tempWord = document.createElement('span');
+                tempWord.classList.add('add_word');
+                tempWord.textContent =  " теперь ";
+
+                chatMessage.append(tempWord);
+                chatMessage.append(data.new_username);
+    
+        
+                chatMsgWr.appendChild(chatMessage);
+
+        
+                chatWatch.appendChild(chatMsgWr);
+                chatWatch.scrollTop = chatWatch.scrollHeight;
+            }
+            if (data.new_user){
+                var chatMsgWr = document.createElement('div');
+                chatMsgWr.classList.add('chat_msg_wr');
+        
+                // var chatUser = document.createElement('span');
+                // chatUser.classList.add('chat_user');
+                // chatUser.textContent = data.username;
+        
+                var chatMessage = document.createElement('span');
+                chatMessage.classList.add('official_message');
+                chatMessage.textContent = 'Добро пожаловать, ';
+                var username = document.createElement('span');
+                username.classList.add('welcome_chat_username');
+                username.textContent =  data.new_user;
+                chatMessage.append(username);
+                chatMsgWr.appendChild(chatMessage);
+                chatWatch.appendChild(chatMsgWr);
+                chatWatch.scrollTop = chatWatch.scrollHeight;
+            }
+            
+            
+
+
         } else if (data.type == 'add_points'){
             let change_points_user = document.querySelectorAll('.current_user');
             for (let i = 0; i < change_points_user.length; i++) {
@@ -864,8 +895,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         } else if (data.type == 'set_username'){
-            let welcomeText = document.getElementsByClassName('welcome_header')[0];
-            welcomeText.textContent = 'Добро пожаловать, ' + data.username;
+            // let welcomeText = document.getElementsByClassName('welcome_header')[0];
+            nicknameLabel.textContent = data.username;
         } else if (data.type == 'make_leader'){
             chatInput.disabled = true;
             chatInput.placeholder = 'Вы ведущий';
@@ -921,8 +952,38 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (data.type == 'change_status_label'){
             gameTimerAndGameStatus.textContent = data.message_status;
             labelLeaderAndWhatWasWord.textContent = data.message_status_2;
+            
             chatInput.disabled = false;
             chatInput.placeholder = 'Угадайте слово';
+
+            // var img_chat_check_mark = document.createElement('img');
+            //     img_chat_check_mark.classList.add('img_check_mark');
+            //     img_chat_check_mark.setAttribute('src', '/static/images/check_mark.png');
+            //     chatMsgWr.appendChild(img_chat_check_mark);
+            if (data.message_status_2.includes('Угадываемое слово')){
+                const leaderIcon = document.getElementsByClassName('leader_icon')[0];
+                leaderIcon.remove();
+                whatWasWord.textContent = data.message_status_2.replace('Угадываемое слово: ', '');
+                if (data.message_status == 'Статус: ожидание готовности игроков'){
+                    timerBeforeNewGame.textContent = 'Ожидание готовности игроков';
+                }
+                whatWasWordWr.style.display = 'block';
+            } else {
+                whatWasWordWr.style.display = 'none';
+                let allUsers = document.querySelectorAll('.current_user');
+                let imgIconLeader = document.createElement('img');
+                imgIconLeader.classList.add('leader_icon');
+                imgIconLeader.setAttribute('src', '/static/images/leader.png');
+                for (let i = 0; i < allUsers.length; i++) {
+                    let username = allUsers[i];
+                    if (username.textContent.trim() == data.message_status_2) {
+                        username.prepend(imgIconLeader);
+                        break; 
+                    }
+                };
+            }
+
+            
         } 
     };
 
@@ -934,7 +995,7 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault(); 
     }, { passive: false });
     
-});
+// });
 
 
 

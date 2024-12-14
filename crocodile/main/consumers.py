@@ -111,8 +111,6 @@ drug_words = [
 ]
 
 
-
-
 # words = gachi_muchi_words + death_words + prison_words + drug_words
 words = words_1
 rooms_date = {}
@@ -142,28 +140,73 @@ technical_info = {}
 
 
 class DrawingConsumer(AsyncWebsocketConsumer):
-    joined_room = False
-    async def connect(self):
-        for room_number in rooms_date:
-            if len(rooms_date[room_number]) < 5:
-                self.group_name = room_number
-                self.joined_room = True
-                break
+    # async def receive(self, text_data):
+    #     # global technical_info[self.group_name]['data']
+    #     type_data = json.loads(text_data)
+    #     type = type_data.get('type')
+    #     # username = json.loads(text_data)
+    #     # type = technical_info[self.group_name]['data']['type']
 
-        if self.joined_room == False:
-            for room_number in range(0, 999):
-                if ('room_' + str(room_number)) not in rooms_date:
-                    self.group_name = 'room_' + str(room_number)
+    #     if type == 'user_connect_random_room':
+    #         print('HELLO')
+    #         self.scope['session']['username'] = 'test'
+    #         self.scope['session'].save()
+    #         # await self.channel_layer.group_send(self.group_name, {
+    #         #     'type': 'user_connect_random_room',
+    #         #     'msg_type': 'clear'
+    #         # })
+
+    joined_room = False
+    user_created_room = False
+    async def connect(self):
+        print('NICKKKKKKKKKK', self.scope['session'].get('username'))
+        print('TYPE', self.scope['session'].get('room_status'))
+        if self.scope['session'].get('room_status') == 'join_random_room':
+            for room_number in rooms_date:
+                try:
+                    if len(rooms_date[room_number]) < 5 and technical_info[room_number]['room_password'] == None:
+                        self.group_name = room_number
+                        self.joined_room = True
+                        break
+                except:
+                    self.group_name = room_number
+                    self.joined_room = True
                     break
 
-        await self.channel_layer.group_add(
-            self.group_name,
-            self.channel_name
-        )
+            if self.joined_room == False:
+                for room_number in range(0, 999):
+                    if ('room_' + str(room_number)) not in rooms_date:
+                        self.group_name = 'room_' + str(room_number)
+                        break
 
-        await self.accept()
+        elif self.scope['session'].get('room_status') == 'create_user_room':
+            for room_number in range(0, 999):
+                if ('user_room_' + str(room_number)) not in rooms_date:
+                    self.group_name = 'user_room_' + str(room_number)
+                    self.user_created_room = True
+                    break
+
+        elif self.scope['session'].get('room_status') == 'join_user_room':
+            for room, info in technical_info.items():
+                if info['room_password'] == self.scope['session'].get('room_password'):
+                    self.group_name = room
+                    break
+                else:
+                    self.group_name = 'disconnect'
+                    await self.close()
+                    return
+        else:
+            self.group_name = 'disconnect'
+            await self.close()
+            return
+                    
+        
         if self.group_name not in rooms_date:
             rooms_date[self.group_name] = {}
+            if self.user_created_room:
+                room_password = self.scope['session'].get('room_password')
+            else:
+                room_password = None
             technical_info[self.group_name] = {
                 'random_words_for_leader': [],
                 'word_for_guessing': None,
@@ -173,7 +216,29 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                 'need_stop_game': False,
                 'is_now_game': False,
                 'data': None,
+                'room_password': room_password,
             }
+        print(technical_info)
+
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+
+        await self.accept()
+        # if self.group_name not in rooms_date:
+        #     rooms_date[self.group_name] = {}
+        #     technical_info[self.group_name] = {
+        #         'random_words_for_leader': [],
+        #         'word_for_guessing': None,
+        #         'leader': None,
+        #         'stop_event': asyncio.Event(),
+        #         'all_are_ready': False,
+        #         'need_stop_game': False,
+        #         'is_now_game': False,
+        #         'data': None,
+        #         'room_password': None,
+        #     }
 
 
         def get_username():
@@ -185,7 +250,7 @@ class DrawingConsumer(AsyncWebsocketConsumer):
         
         # global technical_info[self.group_name]['all_are_ready']
         technical_info[self.group_name]['all_are_ready'] = False
-        if (self.scope['session'].get('username')) == None or (self.scope['session'].get('username')) in rooms_date[self.group_name]:
+        if (self.scope['session'].get('username')) == None or (self.scope['session'].get('username')) in rooms_date[self.group_name] or (self.scope['session'].get('username')) == '':
             get_username()
 
         rooms_date[self.group_name][(self.scope['session'].get('username'))] = {
@@ -227,6 +292,8 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                 {
                     'type': 'add_new_user',
                     'current_users': rooms_date[self.group_name],
+                    'leader_nickname': technical_info[self.group_name]['leader'],
+                    'new_user': self.scope['session'].get('username')
                 }
             )
 
@@ -237,25 +304,29 @@ class DrawingConsumer(AsyncWebsocketConsumer):
             self.group_name,
             self.channel_name
         )
-        del rooms_date[self.group_name][self.scope['session'].get('username')]
-        if len(rooms_date[self.group_name]) == 0:
-            del rooms_date[self.group_name]
-        else:
-            await self.channel_layer.group_send(
-                self.group_name,
-                {
-                    'type': 'del_current_user',
-                    'username': self.scope['session'].get('username'),
-                }
-            )
-            if len(rooms_date[self.group_name]) < 2:
-                if len(rooms_date[self.group_name]) == 1:
-                    for was_leader in rooms_date[self.group_name].values():
-                        was_leader['was_leader'] = False
-                technical_info[self.group_name]['stop_event'].set()
+        if self.group_name != 'disconnect':
+            del rooms_date[self.group_name][self.scope['session'].get('username')]
+            if len(rooms_date[self.group_name]) == 0:
+                del rooms_date[self.group_name]
             else:
-                await self.handle_game_start()
-        print(rooms_date)
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        'type': 'del_current_user',
+                        'username': self.scope['session'].get('username'),
+                    }
+                )
+                try:
+                    if len(rooms_date[self.group_name]) < 2:
+                        if len(rooms_date[self.group_name]) == 1:
+                            for was_leader in rooms_date[self.group_name].values():
+                                was_leader['was_leader'] = False
+                        technical_info[self.group_name]['stop_event'].set()
+                    else:
+                        await self.handle_game_start()
+                except KeyError:
+                    pass
+            print(rooms_date)
 
 
     # Получаем сообщение от клиента
@@ -322,6 +393,7 @@ class DrawingConsumer(AsyncWebsocketConsumer):
             message = technical_info[self.group_name]['data']['message']
             old_username = self.scope['session'].get('username')
             await self.change_username_in_session(message)
+            new_username = self.scope['session'].get('username')
             rooms_date[self.group_name][self.scope['session'].get('username')] = rooms_date[self.group_name].pop(old_username)
 
             await self.channel_layer.group_send(
@@ -329,6 +401,9 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                 {
                     'type': 'add_new_user',
                     'current_users': rooms_date[self.group_name],
+                    'leader_nickname': technical_info[self.group_name]['leader'],
+                    'old_username': old_username,
+                    'new_username': new_username
                 }
             )
         elif type == 'send_message':
@@ -472,7 +547,9 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                         {
                             'type': 'change_status_label',
                             'message_status': 'Ведущий выбирает слово',
-                            'message_status_2': 'Ведущий: ' + technical_info[self.group_name]['leader'] ,
+                            # 'message_status_2': 'Ведущий: ' + technical_info[self.group_name]['leader'],
+                            'message_status_2': technical_info[self.group_name]['leader'],
+                            
                         }
                     )
                     
@@ -552,7 +629,6 @@ class DrawingConsumer(AsyncWebsocketConsumer):
                                     }
                                 )
                             
-                                
                         asyncio.create_task(start_game_timer())
                     
                     if technical_info[self.group_name]['all_are_ready']:
@@ -612,7 +688,11 @@ class DrawingConsumer(AsyncWebsocketConsumer):
     async def add_new_user(self, event):
         await self.send(text_data=json.dumps({
             'type': 'add_new_user',
-            'current_users': event['current_users']
+            'current_users': event['current_users'],
+            'leader_nickname': event['leader_nickname'],
+            'old_username': event.get('old_username'),
+            'new_username': event.get('new_username'),
+            'new_user': event.get('new_user')
         }))
 
     async def del_current_user(self, event):

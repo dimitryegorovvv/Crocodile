@@ -4,10 +4,21 @@
     <div class="main">
         <!-- <audio autoplay controls loop class="audio" src="static/images/123.mp3">123</audio> -->
         <!-- <button class="del">Назад</button> -->
-        <div class="current_users">
-            <span>Игроки:</span>
+        <div class="users_status_wr">
+            <div class="current_users">
+                <span>Игроки:
+                    <span>
+                        <!-- <img class="leader_icon" src="{% static 'images/leader.png' %}" alt=""> -->
+                        <!-- User12345 -->
+                    </span>
+                </span>
+            </div>
+            <div class="game_timer">
+                <img class="icon_status" src="{% static 'images/icon.png' %}" alt="">
+                Статус: ожидание готовности игроков
+                <img class="icon_status" src="{% static 'images/icon.png' %}" style="transform: scaleX(-1);" alt="">
+            </div>
         </div>
-        <div class="game_timer">Статус: ожидание готовности игроков</div>
         <!-- <div class="timer_choose_word">10</div> -->
         <!-- <div class="word_for_presenter">Ваше слово: КРОКОДИЛ</div> -->
         <!-- <button class="clear_button">Очистить</button> -->
@@ -17,6 +28,11 @@
         <div class="canvas_and_chat_wr">
             <div style="position: relative;" class="canvas_words_pr_wr">
                 <canvas id="drawingCanvas" width="850" height="450"></canvas>
+                <div class="what_was_word_wr">
+                    <div class="label_what_was_word">Угадываемое слово:</div>
+                    <div class="what_was_word">КРОКОДИЛ</div>
+                    <div class="timer_before_new_game">5</div>
+                </div>
                 <!-- <div class="words_for_presenter">
                     <div class="choose_word">Выберите слово:</div>
                     <div class="selectable_word_wr">
@@ -29,6 +45,8 @@
             </div>
             <div class="chat_wr">
                 <div class="chat_watch">
+                    <!-- <div class="chat_msg_wr"><span class="chat_user" style="color: green;">user1</span><span class="chat_message">пляж</span><img class="img_check_mark" src="/static/images/check_mark.png"></div> -->
+                    <!-- <div class="chat_msg_wr"><span class="chat_user">user1</span><span class="chat_message">gergergregrg</span></div> -->
                     <!-- <div class="chat_msg_wr">
                         <span class="chat_user" style="color: green;">user1</span>
                         <span class="chat_message">Cлово угадано!</span>
@@ -37,7 +55,10 @@
                 </div>
                 <div class="chat_write_and_btn_send">
                     <input class="chat_write" placeholder="Угадайте слово" type="text">
-                    <button class="btn_send_mes">Отправить</button>
+                    <button class="btn_send_mes">
+                        <!-- Отправить -->
+                        <img class="send_mes_icon" src="{% static 'images/send_mes_icon.png' %}" alt="">
+                    </button>
                 </div>
                 <div class="label_leader_and_what_was_word">Ведущий:</div>
                 <!-- <input type="range" min="1" max="10"> -->

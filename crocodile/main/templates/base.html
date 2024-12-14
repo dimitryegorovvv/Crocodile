@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,16 +22,20 @@
     {% block header %}
     <div class="header">
         <a href="/" class="main_page">
+            <img class="header_icon" src="{% static 'images/home.png' %}" alt="">
             Главная
         </a>
         <div class="username_ent_wr">
-            <input class="inp_username" placeholder="Введите ваш никнейм" type="text">
+            <input class="inp_username" placeholder="Изменить никнейм" type="text">
             <!-- <div class="username_is_incorrect">Допускается не более 15 символов и отсутствие пробелов</div> -->
-            <button class="btn_conf_username">Подтвердить</button>
+            <button class="btn_conf_username">Подтвердить
+                <img class="header_icon icon_send" src="{% static 'images/send_icon.png' %}" alt="">
+            </button>
         </div>
         <div class="ready_wr">
-            <span>Ваш статус:&nbsp;</span>
+            <span class="status_label">Ваш статус:&nbsp;</span>
             <button class="ready_button">Не готов</button>
+            <span class="circle_header"></span>
         </div>
         <button style="display: none;" class="user_tools"
             data-color='{{ request.session.color }}'
@@ -45,7 +49,9 @@
             </div> -->
         </button>
         <div class="welcome_header">
-            Добро пожаловать, {{ request.session.username }}
+            Добро пожаловать, 
+            <span class="nickname">{{ request.session.username }}</span>
+            <img class="header_icon" src="{% static 'images/welcome_icon.png' %}" alt="">
         </div>
     </div>
     {% endblock %}
