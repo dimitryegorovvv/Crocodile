@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const cssUrl = 'static/farbtastic.css';
     const newPages = document.querySelectorAll('.room_button');
 
+
     newPages.forEach(newPage => {
         newPage.addEventListener('click', function(event) {
             const target = event.target;
@@ -42,6 +43,26 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function randomGameConnect() {
+        function updateViewport() {
+            // Удаляем старый мета-тег
+            const existingMeta = document.querySelector('meta[name="viewport"]');
+            if (existingMeta) {
+                existingMeta.parentNode.removeChild(existingMeta);
+            }
+        
+            // Создаём новый мета-тег
+            const metaTag = document.createElement('meta');
+            metaTag.name = 'viewport';
+            metaTag.content = 'width=1300, initial-scale=1.0, maximum-scale=1.0';
+        
+            // Добавляем его в head
+            document.head.appendChild(metaTag);
+        
+            console.log('Viewport meta updated!');
+        }
+        
+        // Вызываем функцию после динамической загрузки
+        updateViewport();
         joinRandomRoom();
         const response = await fetch(target);
         const newContent = await response.text();

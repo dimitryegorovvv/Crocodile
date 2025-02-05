@@ -7,7 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="/static/images/icon.png">
-    <meta name="viewport" content="width=1300">
+    <!-- <meta name="viewport" content="width=1300"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Крокодил</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <script src="{% static 'script_start_menu.js' %}" defer></script>
@@ -17,7 +18,7 @@
         <div class="start_menu_welcome">
             Добро пожаловать в игру 'Крокодил'
         </div>
-        <input class="SM_username_input" autofocus maxlength="20" placeholder="Никнейм (необязательно)" {% if username %} value="{{ username }}" {% endif %}></input>
+        <input class="SM_username_input input_SM" autofocus maxlength="20" placeholder="Никнейм (необязательно)" {% if username %} value="{{ username }}" {% endif %}></input>
         <div class="room_choose">
             <button class="room_button begin_game" data-target="/play/">
                 Начать игру

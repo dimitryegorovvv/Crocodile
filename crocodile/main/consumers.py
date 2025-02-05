@@ -64,103 +64,21 @@ words_1 = [
 # ]
 
 
-# words_5 = [
-#     "старинный", "пыль", "антиквариат", "лампа", "картина", "вещи", "часы", 
-#     "коробка", "посуда", "мебель", "монеты", "книги", "винтаж", "продавец", 
-#     "покупатель", "торг", "коллекция", "плакат", "сувенир", "граммофон", 
-#     "шкатулка", "рюкзак", "стол", "стул", "полка", "ткань", "одежда", 
-#     "ботинки", "зеркало", "шляпа", "чемодан", "письма", "радио", "фотоаппарат", 
-#     "пепельница", "чайник", "швейная машина", "подсвечник", "кукла", 
-#     "телефон", "фотография", "ковёр", "гитара", "игрушка", "рукопись", 
-#     "монополь", "пластинка", "сервант"
-# ]
-gachi_muchi_words = [
-    "шляпа", "кожанка", "очки", "усики", "друзья", "спортзал", 
-    "бицепс", "музыка", "пот", "танец", "грусть", "радость", 
-    "пресс", "силовая тренировка", "бодибилдинг", "энергия", 
-    "дружба", "кардио", "командная работа", "ринг", "борьба", 
-    "коврик", "гантели", "штанга", "фитнес", "юмор", "мем", 
-    "сцена", "видеоролик", "сила", "игра"
-]
-
-death_words = [
-    "кладбище", "надгробие", "костюм", "траур", "венок", "память", 
-    "гроб", "свеча", "сумрак", "призрак", "ангел", "кремация", 
-    "крест", "прах", "могила", "хор", "панихида", "вечность", 
-    "скорбь", "потусторонний", "темнота", "финал", "прощание", 
-    "судьба", "тишина", "мрак", "жизнь", "потеря", "традиция"
-]
-
-prison_words = [
-    "камера", "решетка", "надзиратель", "побег", "заключенный", "суд", "замок", 
-    "цепь", "тюремщик", "арест", "приговор", "свидание", "срок", "побег", 
-    "переодевание", "тюремная форма", "обед", "столовая", "одиночка", 
-    "охрана", "собака", "закон", "трибунал", "тюремные ворота", 
-    "карцер", "надзор", "отчуждение", "строгий режим", "срок", 
-    "решетка", "прогулка", "письмо", "посылка", "тюремный двор"
-]
-
-drug_words = [
-    "наркотики", "зависимость", "доза", "передозировка", "реабилитация", 
-    "героин", "кокаин", "марихуана", "каннабис", "амфетамины", 
-    "метамфетамин", "экстази", "опиаты", "спайс", "крек", 
-    "метадон", "таблетки", "абстиненция", "лечебница", 
-    "детокс", "трафик", "контрабанда", "синтетика", 
-    "рецидив", "препарат", "запрет", "препарат", 
-    "тест", "куратор", "вещество", "психоз"
-]
-
 
 # words = gachi_muchi_words + death_words + prison_words + drug_words
 words = words_1
 rooms_date = {}
 technical_info = {}
-    # 'technical_info[self.group_name]['random_words_for_leader']': [],
-    # 'technical_info[self.group_name]['word_for_guessing']': None,
-    # 'technical_info[self.group_name]['leader'] ': None,
-    # 'need_stop_timer': False,
-    # 'technical_info[self.group_name]['stop_event']': asyncio.Event(),
-    # 'technical_info[self.group_name]['all_are_ready']': False,
-    # 'technical_info[self.group_name]['need_stop_game']': False,
-    # 'technical_info[self.group_name]['is_now_game']': False,
-    # 'technical_info[self.group_name]['data']': None,
-# }
 
-# words = ['кофе', 'ноутбук', 'мел', 'ручка', 'нефть']
-# technical_info[self.group_name]['technical_info[self.group_name]['word_for_guessing']'] = []
-# technical_info[self.group_name]['technical_info[self.group_name]['is_now_game']'] '] = None
-# technical_info[self.group_name]['technical_info[self.group_name]['all_are_ready']']  = None
-# need_stop_timer = False
-# technical_info[self.group_name]['stop_event'] = asyncio.Event()
-# technical_info[self.group_name]['technical_info[self.group_name]['stop_event']'] = False
-# technical_info[self.group_name]['technical_info[self.group_name]['data']'] = False
-# technical_info[self.group_name]['technical_info[self.group_name]['need_stop_game']'] = False
-# technical_info[self.group_name]['data'] = None
 
 
 
 class DrawingConsumer(AsyncWebsocketConsumer):
-    # async def receive(self, text_data):
-    #     # global technical_info[self.group_name]['data']
-    #     type_data = json.loads(text_data)
-    #     type = type_data.get('type')
-    #     # username = json.loads(text_data)
-    #     # type = technical_info[self.group_name]['data']['type']
-
-    #     if type == 'user_connect_random_room':
-    #         print('HELLO')
-    #         self.scope['session']['username'] = 'test'
-    #         self.scope['session'].save()
-    #         # await self.channel_layer.group_send(self.group_name, {
-    #         #     'type': 'user_connect_random_room',
-    #         #     'msg_type': 'clear'
-    #         # })
+    
 
     joined_room = False
     user_created_room = False
     async def connect(self):
-        print('NICKKKKKKKKKK', self.scope['session'].get('username'))
-        print('TYPE', self.scope['session'].get('room_status'))
         if self.scope['session'].get('room_status') == 'join_random_room':
             for room_number in rooms_date:
                 try:
@@ -801,3 +719,18 @@ class DrawingConsumer(AsyncWebsocketConsumer):
             'last_action': event['last_action']
         }))
         
+
+# async def receive(self, text_data):
+    #     # global technical_info[self.group_name]['data']
+    #     type_data = json.loads(text_data)
+    #     type = type_data.get('type')
+    #     # username = json.loads(text_data)
+    #     # type = technical_info[self.group_name]['data']['type']
+
+    #     if type == 'user_connect_random_room':
+    #         self.scope['session']['username'] = 'test'
+    #         self.scope['session'].save()
+    #         # await self.channel_layer.group_send(self.group_name, {
+    #         #     'type': 'user_connect_random_room',
+    #         #     'msg_type': 'clear'
+    #         # })

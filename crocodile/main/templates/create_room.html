@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="/static/images/icon.png">
-    <meta name="viewport" content="width=1300">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Крокодил</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <script src="{% static 'script_create_room.js' %}" defer></script>
@@ -17,7 +17,7 @@
         <div class="start_menu_welcome">
             Придумайте пароль для комнаты
         </div>
-        <input class="SM_pass_input" autofocus maxlength="20" minlength="1" placeholder="Пароль" {% if username %} {% endif %}></input>
+        <input class="SM_pass_input input_SM" autofocus maxlength="20" minlength="1" placeholder="Пароль" {% if username %} {% endif %}></input>
         <button class="action_room_button" data-target="/play/">Создать комнату</button>
         <a href="/"><img class="img_arrow" src="{% static 'images/arrow.png' %}" alt="Назад"></a>
     </div>

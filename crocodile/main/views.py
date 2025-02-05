@@ -7,7 +7,7 @@ import json
 
 
 def home(request):
-    username = request.session.get('username', 'no_name')
+    username = request.session.get('username')
     print(username)
     return render(request, 'start_menu.html', {'username': username})
     # return render(request, 'home.html', {'username': username})

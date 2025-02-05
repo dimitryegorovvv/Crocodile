@@ -1,6 +1,33 @@
-const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
+const url = 'wss://' + '28b5-178-120-50-214.ngrok-free.app';
+// const url = 'ws://' + '127.0.0.1:8001';
 
 // document.addEventListener('DOMContentLoaded', function() {    
+    // let metaTag = document.querySelector('meta[name="viewport"]');
+
+    // if (metaTag) {
+    //     metaTag.setAttribute('content', 'width=1300, initial-scale=1.0, maximum-scale=1.0');
+    // } else {
+    //     console.log('мета-тег не найден');
+        
+    // }
+
+    function updateViewport() {
+        const existingMeta = document.querySelector('meta[name="viewport"]');
+        if (existingMeta) {
+            existingMeta.parentNode.removeChild(existingMeta);
+        }
+    
+        const metaTag = document.createElement('meta');
+        metaTag.name = 'viewport';
+        metaTag.content = 'width=1300, initial-scale=1.0, maximum-scale=1.0';
+    
+        document.head.appendChild(metaTag);
+    
+        console.log('Viewport meta updated!');
+    }
+    
+    updateViewport();
+
     const socket = new WebSocket(url + '/ws/draw/');
     const chatInput = document.getElementsByClassName('chat_write')[0];
     const btnSend = document.getElementsByClassName('btn_send_mes')[0];
@@ -20,6 +47,8 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
     const whatWasWord = document.getElementsByClassName('what_was_word')[0];
     const timerBeforeNewGame = document.getElementsByClassName('timer_before_new_game')[0];
     const nicknameLabel = document.getElementsByClassName('nickname')[0];
+    const kickPlayer = document.getElementsByClassName('kick_player')[0];
+    const kickUsersList = document.getElementsByClassName('kick_users_list')[0];
     var currentCanvasColor = 'not_set';
     var standartCanvasColor = '#000000';
     var standartBruhColor = '#f1f1f1';
@@ -41,6 +70,13 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
     } else {
         ctx.strokeStyle = userTools.getAttribute('data-brush-color');
     }
+
+    kickPlayer.addEventListener('click', () => {
+        kickUsersList.classList.toggle('show');
+    });
+    
+
+
 
     // const words = ['Лошадь', 'Собака', 'Луна']
 
@@ -383,10 +419,22 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
         const wordsForPresenter = document.getElementsByClassName('words_for_presenter')[0];
         wordsForPresenter.remove();
 
-        
         const wordForPresenter = document.createElement("div");
+
+        let imgForWordLeft = document.createElement('img');
+        imgForWordLeft.classList.add('img_for_word', 'left_img_for_word');
+        imgForWordLeft.src = '/static/images/for_word.png';
+        wordForPresenter.append(imgForWordLeft);
+        
         wordForPresenter.classList.add('word_for_presenter');
-        wordForPresenter.textContent = 'Ваше слово: ' + choosedWord.toUpperCase();
+        let tempWords = 'Ваше слово: ' + choosedWord.toUpperCase();
+        wordForPresenter.append(tempWords);
+
+        let imgForWordRight = document.createElement('img');
+        imgForWordRight.classList.add('img_for_word', 'right_img_for_word');
+        imgForWordRight.src = '/static/images/for_word.png';
+        wordForPresenter.append(imgForWordRight);
+        
         gameTimerAndGameStatus.insertAdjacentElement('afterend', wordForPresenter);
         let brushColor;
         if (userTools.getAttribute('data-brush-color') == ''){
@@ -394,6 +442,8 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
         } else {
             brushColor = userTools.getAttribute('data-brush-color');
         }
+
+
         socket.send(JSON.stringify({
             'type': 'set_brush_color_for_all',
             'color': brushColor
@@ -447,6 +497,9 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
         imgButtonBack.alt = 'Назад';
         buttonBack.appendChild(imgButtonBack);
 
+        let lineForWord = document.createElement('div');
+        lineForWord.classList.add('line_word_presenter');
+
         const chatSendMessage = document.getElementsByClassName('chat_write_and_btn_send')[0];
         chatSendMessage.style.display = 'none';
         labelLeaderAndWhatWasWord.style.display = 'none';
@@ -456,12 +509,13 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
         changeBrushColor.insertAdjacentElement('afterend', buttonClearCanvas);
         buttonClearCanvas.insertAdjacentElement('afterend', brushWidth);
         brushWidth.insertAdjacentElement('afterend', buttonBack);
-        buttonBack.insertAdjacentElement('afterend', wordForPresenter);
+        buttonBack.insertAdjacentElement('afterend', lineForWord);
+        lineForWord.insertAdjacentElement('afterend', wordForPresenter);
 
-        // socket.send(JSON.stringify({
-        //         'type': 'presenter_choosed_word',
-        //         'word': choosedWord
-        //     }));
+        socket.send(JSON.stringify({
+                'type': 'presenter_choosed_word',
+                'word': choosedWord
+            }));
     }
 
     
@@ -523,13 +577,16 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
     }
     
     buttonReady.addEventListener('click', function(){
-        if (buttonReady.textContent == 'Не готов'){
-            buttonReady.style.backgroundColor = 'green';
-            buttonReady.textContent = 'Готов';
+        let cirleFigure = document.getElementsByClassName('circle_header')[0];
+        if (buttonReady.textContent == 'Нажмите для готовности'){
+            cirleFigure.style.backgroundColor = 'green';
+            buttonReady.style.color = 'green';
+            buttonReady.textContent = 'Нажмите, если не готовы';
             send_socket_readiness('ready');
         } else {
-            buttonReady.style.backgroundColor = 'red';
-            buttonReady.textContent = 'Не готов';
+            buttonReady.style.color = 'red';
+            cirleFigure.style.backgroundColor = 'red';
+            buttonReady.textContent = 'Нажмите для готовности';
             send_socket_readiness('not_ready');
         }
         function send_socket_readiness(are_ready) {
@@ -719,8 +776,24 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
         } else if (data.type == 'show_word_for_leader'){
             presenter_choosed_word(data.word_for_guessing)
         } else if (data.type == 'start_game_timer'){
-            // whatWasWordWr.style.display = 'block';
-            // timerBeforeNewGame.textContent = data.time_left_start_game_timer + ' сек.';
+            // gameTimerAndGameStatus.textContent = '';
+
+            // let imgForWordLeft = document.createElement('img');
+            // imgForWordLeft.classList.add('icon_status');
+            // imgForWordLeft.src = '/static/images/icon.png';
+            // gameTimerAndGameStatus.append(imgForWordLeft);
+
+            // gameTimerAndGameStatus.classList.add('word_for_presenter');
+            // let tempWords = data.time_left_start_game_timer + ' сек.';
+            // gameTimerAndGameStatus.append(tempWords);
+
+            // let imgForWordRight = document.createElement('img');
+            // imgForWordRight.classList.add('icon_status');
+            // imgForWordRight.src = '/static/images/icon.png';
+            // imgForWordRight.style.transform = 'scaleX(-1)';
+            // gameTimerAndGameStatus.append(imgForWordRight);
+            // // whatWasWordWr.style.display = 'block';
+            // // timerBeforeNewGame.textContent = data.time_left_start_game_timer + ' сек.';
             timerBeforeNewGame.textContent = data.time_left_start_game_timer + ' сек.';
             gameTimerAndGameStatus.textContent = data.time_left_start_game_timer + ' сек.';
         } else if (data.type == 'clear_leader_tools'){
@@ -739,7 +812,7 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
             brushWidth.remove();
             buttonBack.remove();
             chatSendMessage.style.display = 'flex';
-            labelLeaderAndWhatWasWord.style.display = 'block';
+            // labelLeaderAndWhatWasWord.style.display = 'block';
         } else if (data.type == 'send_message'){
             var chatMsgWr = document.createElement('div');
             chatMsgWr.classList.add('chat_msg_wr');
@@ -778,6 +851,12 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
                     username.remove();
                 }
             });
+            let allUsernamesKick = document.querySelectorAll('.username_kick');
+            allUsernamesKick.forEach(username => {
+                if (username.textContent.trim() == data.username){
+                    username.parentElement.remove();
+                }
+            });
             var chatMsgWr = document.createElement('div');
             chatMsgWr.classList.add('chat_msg_wr');
     
@@ -806,6 +885,10 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
                 username.nextElementSibling.remove();
                 username.remove();
             });
+            let allUsernamesKick = document.querySelectorAll('.player_nick_kick');
+            allUsernamesKick.forEach(username => {
+                username.remove();
+            });
             for (let currentUserKey in data.current_users){
                 var currentUser = document.createElement('span');
                 currentUser.classList.add('current_user');
@@ -825,7 +908,26 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
                 }
                 currentUsers.appendChild(currentUser);
                 currentUsers.appendChild(userPoints);
+
+                let buttonKickPlayer = document.createElement('button');
+                buttonKickPlayer.classList.add('player_nick_kick');
+ 
+                let usernameKick = document.createElement('span');
+                usernameKick.classList.add('username_kick');
+                usernameKick.textContent = currentUserKey;
+
+                let imgPlayerKick = document.createElement('img');
+                imgPlayerKick.classList.add('img_kick_player');
+                imgPlayerKick.setAttribute('src', '/static/images/kick_player.png');
+
+                buttonKickPlayer.append(usernameKick);
+                buttonKickPlayer.append(imgPlayerKick);
+                kickUsersList.append(buttonKickPlayer);
             }
+            // const kickPlayer = document.getElementsByClassName('kick_player')[0];
+            // const kickUsersList = document.getElementsByClassName('kick_users_list')[0];
+
+
 
             if (data.old_username){
                 var chatMsgWr = document.createElement('div');
@@ -950,7 +1052,22 @@ const url = 'wss://' + 'c79c-178-120-52-104.ngrok-free.app';
                 chatInput.disabled = true;
             }
         } else if (data.type == 'change_status_label'){
-            gameTimerAndGameStatus.textContent = data.message_status;
+
+            gameTimerAndGameStatus.textContent = '';
+
+            let imgForWordLeft = document.createElement('img');
+            imgForWordLeft.classList.add('icon_status');
+            imgForWordLeft.src = '/static/images/icon.png';
+            gameTimerAndGameStatus.append(imgForWordLeft);
+            
+            gameTimerAndGameStatus.append(data.message_status);
+
+            let imgForWordRight = document.createElement('img');
+            imgForWordRight.classList.add('icon_status');
+            imgForWordRight.src = '/static/images/icon.png';
+            imgForWordRight.style.transform = 'scaleX(-1)';
+            gameTimerAndGameStatus.append(imgForWordRight);
+
             labelLeaderAndWhatWasWord.textContent = data.message_status_2;
             
             chatInput.disabled = false;

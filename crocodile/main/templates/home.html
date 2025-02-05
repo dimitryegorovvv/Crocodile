@@ -6,7 +6,8 @@
         <!-- <button class="del">Назад</button> -->
         <div class="users_status_wr">
             <div class="current_users">
-                <span>Игроки:
+                <span class="users_label">
+                    Игроки:
                     <span>
                         <!-- <img class="leader_icon" src="{% static 'images/leader.png' %}" alt=""> -->
                         <!-- User12345 -->
@@ -53,6 +54,17 @@
                         <img class="img_check_mark" src="{% static 'images/check_mark.png' %}">
                     </div> -->
                 </div>
+                <!-- <div class="chat_info">
+                    <div class="kick_label">Исключить crocodile?</div>
+                    <div class="vote_btn_wr">
+                        <button class="kick_btn_yes">ДА</button>
+                        <button class="kick_btn_no">НЕТ</button>
+                    </div>
+                    <div class="vote_voices_wr">
+                        <span class="kick_yes_count">1 за</span>
+                        <span class="kick_no_count">2 против</span>
+                    </div>     
+                </div> -->
                 <div class="chat_write_and_btn_send">
                     <input class="chat_write" placeholder="Угадайте слово" type="text">
                     <button class="btn_send_mes">
@@ -60,10 +72,24 @@
                         <img class="send_mes_icon" src="{% static 'images/send_mes_icon.png' %}" alt="">
                     </button>
                 </div>
+                <!-- <div class="kick_wr"> -->
+                    <button class="kick_player">
+                        Исключить игрока
+                        <img class="img_kick" src="{% static 'images/kick.png' %}" alt="">
+                    </button>
+                    <div class="kick_users_list">
+                    </div>
+                <!-- </div> -->
                 <div class="label_leader_and_what_was_word">Ведущий:</div>
+                <!-- <div class="word_for_presenter"> -->
+                    <!-- <img class="img_for_word left_img_for_word" src="{% static 'images/for_word.png' %}" alt="">
+                    Ваше слово: HUI
+                    <img class="img_for_word right_img_for_word" src="{% static 'images/for_word.png' %}" alt=""> -->
+                <!-- </div> -->
                 <!-- <input type="range" min="1" max="10"> -->
                 <!-- <button class="eraser leader_tool">Стёрка</button> -->
                 <!-- <button class="clear_button leader_tool">Очистить</button> -->
+                 <!-- <div class="line_word_presenter"></div> -->
             </div>
         </div>
         <!-- <div class="words_for_presenter">
@@ -75,5 +101,14 @@
             </div>
             <div class="timer_choose_word">10</div>
         </div> -->
+        
     </div>
+    <!-- <div class="close_connection">
+        <div class="error_label_disconnect">
+            Ошибка соединения
+        </div>
+        <div class="error_text_disconnect">
+            Пожалуйста, попробуйте позже
+        </div>
+    </div> -->
 {% endblock %}
